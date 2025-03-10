@@ -125,12 +125,12 @@ const ReachLab = () => {
         // Regola i fattori in base alla dimensione del target
         let minFactor, maxFactor, midDensity;
         
-        if (targetSizeValue < 100000) {
+        if (targetSizeValue < 14000000) {
           // Target molto piccolo
           minFactor = 1.5;
           maxFactor = 3.0;
           midDensity = 2.0;
-        } else if (targetSizeValue < 1000000) {
+        } else if (targetSizeValue < 24000000) {
           // Target medio
           minFactor = 1.2;
           maxFactor = 2.0;
