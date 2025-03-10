@@ -186,9 +186,9 @@ const ReachLab = () => {
           debugInfo.targetCategory = 'Medio';
         } else {
           // Target grande
-          minFactor = 2.2;
+          minFactor = 2.1;
           maxFactor = 4.0;
-          midDensity = 2.0;
+          midDensity = 4.0;
           debugInfo.targetCategory = 'Grande';
         }
         
