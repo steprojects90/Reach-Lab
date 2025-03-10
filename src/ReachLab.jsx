@@ -135,29 +135,38 @@ const ReachLab = () => {
       
       // Se il modello adattivo è attivo, calcola la frequenza adattiva
       if (useAdaptiveFrequency) {
+        // Assicuriamoci che totalImpressions e targetSizeValue siano valori numerici validi
+        console.log("totalImpressions:", totalImpressions);
+        console.log("targetSizeValue:", targetSizeValue);
+        
         // Calcolo adattivo del fattore di scala per la frequenza
-        const impressionDensity = totalImpressions / targetSizeValue;
+        // Usa Math.max per assicurarsi che la densità non sia zero
+        const impressionDensity = targetSizeValue > 0 ? totalImpressions / targetSizeValue : 0;
         debugInfo.impressionDensity = impressionDensity;
         
-        // Regola i fattori in base alla dimensione del target
-        let minFactor, maxFactor, midDensity;
+        // Imposta valori predefiniti nel caso in cui il target non rientri in nessuna categoria
+        let minFactor = 1.0;
+        let maxFactor = 2.0;
+        let midDensity = 5.0;
+        debugInfo.targetCategory = 'Non definito';
         
+        // Regola i fattori in base alla dimensione del target
         if (targetSizeValue < 100000) {
           // Target molto piccolo
-          minFactor = 2.0;  // Aumentato per rendere più evidente la differenza
-          maxFactor = 4.0;  // Aumentato per rendere più evidente la differenza
+          minFactor = 2.0;
+          maxFactor = 4.0;
           midDensity = 2.0;
           debugInfo.targetCategory = 'Piccolo';
         } else if (targetSizeValue < 1000000) {
           // Target medio
-          minFactor = 1.5;  // Aumentato per rendere più evidente la differenza
-          maxFactor = 3.0;  // Aumentato per rendere più evidente la differenza
+          minFactor = 1.5;
+          maxFactor = 3.0;
           midDensity = 4.0;
           debugInfo.targetCategory = 'Medio';
         } else {
           // Target grande
-          minFactor = 1.2;  // Aumentato per rendere più evidente la differenza
-          maxFactor = 2.0;  // Aumentato per rendere più evidente la differenza
+          minFactor = 1.2;
+          maxFactor = 2.0;
           midDensity = 6.0;
           debugInfo.targetCategory = 'Grande';
         }
@@ -168,6 +177,7 @@ const ReachLab = () => {
         
         // Funzione che calcola un fattore di scala appropriato
         const calculateFrequencyFactor = (density) => {
+          if (density <= 0) return minFactor; // Previeni errori matematici
           return minFactor + (maxFactor - minFactor) * (1 - Math.exp(-density / midDensity));
         };
         
@@ -178,8 +188,9 @@ const ReachLab = () => {
         // Applica il fattore alla frequenza standard
         finalFrequency = standardFrequency * frequencyFactor;
         debugInfo.adjustedFrequency = finalFrequency;
-      }
-      
+        
+        console.log("Calcolo adattivo completato:", debugInfo);
+      }  
       // Costo per reach point
       const costPerReach = budgetValue / reach1Plus;
       
