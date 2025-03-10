@@ -128,7 +128,7 @@ const ReachLab = () => {
         if (targetSizeValue < 14000000) {
           // Target molto piccolo
           minFactor = 1.5;
-          maxFactor = 3.0;
+          maxFactor = 5.0;
           midDensity = 2.0;
         } else if (targetSizeValue < 24000000) {
           // Target medio
