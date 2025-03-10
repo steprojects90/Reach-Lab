@@ -174,9 +174,9 @@ const ReachLab = () => {
         // Regola i fattori in base alla dimensione del target
         if (targetSizeValue < 10000000) {
           // Target molto piccolo
-          minFactor = 2.0;
-          maxFactor = 4.0;
-          midDensity = 2.0;
+          minFactor = 2.6;
+          maxFactor = 5.0;
+          midDensity = 1.5;
           debugInfo.targetCategory = 'Piccolo';
         } else if (targetSizeValue < 25000000) {
           // Target medio
@@ -186,7 +186,7 @@ const ReachLab = () => {
           debugInfo.targetCategory = 'Medio';
         } else {
           // Target grande
-          minFactor = 2.1;
+          minFactor = 2.2;
           maxFactor = 4.0;
           midDensity = 4.0;
           debugInfo.targetCategory = 'Grande';
