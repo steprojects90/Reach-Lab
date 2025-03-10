@@ -103,15 +103,31 @@ const ReachLab = () => {
       };
       
       // Ottieni i valori di input
-      const targetSizeValue = parseInt(targetSize.replace(/\./g, ''), 10) || 0;
-      const budgetValue = parseInt(budget.replace(/\./g, ''), 10) || 0;
-      const cpmValue = parseFloat(cpm.replace(',', '.')) || 0;
+      console.log("targetSize originale:", targetSize);
+      const targetSizeClean = targetSize.replace(/\./g, '');
+      console.log("targetSize pulito:", targetSizeClean);
+      const targetSizeValue = parseInt(targetSizeClean, 10) || 1000000;
+      console.log("targetSizeValue finale:", targetSizeValue);
+      
+      console.log("budget originale:", budget);
+      const budgetClean = budget.replace(/\./g, '');
+      console.log("budget pulito:", budgetClean);
+      const budgetValue = parseInt(budgetClean, 10) || 50000;
+      console.log("budgetValue finale:", budgetValue);
+      
+      console.log("cpm originale:", cpm);
+      const cpmClean = cpm.replace(',', '.');
+      console.log("cpm pulito:", cpmClean);
+      const cpmValue = parseFloat(cpmClean) || 25;
+      console.log("cpmValue finale:", cpmValue);
       
       // Calcolo delle impressioni totali
       const totalImpressions = Math.floor(budgetValue / (cpmValue / 1000));
+      console.log("Impressioni totali:", totalImpressions);
       
       // Calcolo dei GRP
       const calculatedGrps = (totalImpressions / targetSizeValue) * 100;
+      console.log("GRP calcolati:", calculatedGrps);
       
       // Parametri per il calcolo della reach
       const p = channelPotential;
@@ -135,16 +151,13 @@ const ReachLab = () => {
       
       // Se il modello adattivo è attivo, calcola la frequenza adattiva
       if (useAdaptiveFrequency) {
-        // Assicuriamoci che totalImpressions e targetSizeValue siano valori numerici validi
-        console.log("totalImpressions:", totalImpressions);
-        console.log("targetSizeValue:", targetSizeValue);
-        
-        // Calcolo adattivo del fattore di scala per la frequenza
-        // Usa Math.max per assicurarsi che la densità non sia zero
+        // Calcolo della densità delle impressioni
+        console.log("Calcolo densità:", totalImpressions, "/", targetSizeValue);
         const impressionDensity = targetSizeValue > 0 ? totalImpressions / targetSizeValue : 0;
+        console.log("Densità impressioni:", impressionDensity);
         debugInfo.impressionDensity = impressionDensity;
         
-        // Imposta valori predefiniti nel caso in cui il target non rientri in nessuna categoria
+        // Imposta valori predefiniti
         let minFactor = 1.0;
         let maxFactor = 2.0;
         let midDensity = 5.0;
@@ -177,20 +190,21 @@ const ReachLab = () => {
         
         // Funzione che calcola un fattore di scala appropriato
         const calculateFrequencyFactor = (density) => {
-          if (density <= 0) return minFactor; // Previeni errori matematici
+          if (density <= 0) return minFactor;
           return minFactor + (maxFactor - minFactor) * (1 - Math.exp(-density / midDensity));
         };
         
         // Calcola il fattore basato sulla densità delle impressioni
         const frequencyFactor = calculateFrequencyFactor(impressionDensity);
+        console.log("Fattore calcolato:", frequencyFactor);
         debugInfo.frequencyFactor = frequencyFactor;
         
         // Applica il fattore alla frequenza standard
         finalFrequency = standardFrequency * frequencyFactor;
+        console.log("Frequenza adattata:", finalFrequency);
         debugInfo.adjustedFrequency = finalFrequency;
-        
-        console.log("Calcolo adattivo completato:", debugInfo);
-      }  
+      }
+      
       // Costo per reach point
       const costPerReach = budgetValue / reach1Plus;
       
