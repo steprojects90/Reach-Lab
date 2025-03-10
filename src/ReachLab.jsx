@@ -531,7 +531,7 @@ const ReachLab = () => {
           </div>
           
           <div className="result-box result-box-warning">
-            <p className="result-label text-warning">Costo per GRP</p>
+            <p className="result-label text-warning">Cost per GRP</p>
             <p className="result-value">{results.cpg}</p>
           </div>
         </div>
