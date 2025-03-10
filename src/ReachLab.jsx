@@ -517,7 +517,7 @@ const ReachLab = () => {
           
           <div className="result-box result-box-warning">
             <p className="result-label text-warning">
-              Frequenza Media
+            Average Frequency
               {useAdaptiveFrequency && (
                 <span className="tooltip" title="Frequenza adattata per riflettere la distribuzione reale delle impressioni">ℹ️</span>
               )}
