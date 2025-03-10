@@ -133,23 +133,31 @@ const ReachLab = () => {
       const p = channelPotential;
       const g = calculatedGrps;
       
+      // Calcolo standard (non adattivo)
       // Formula della reach 1+ (percentuale del target) - Reach su devices
-      const reach1Plus = (p * g) / (g + p);
+      const standardReach1Plus = (p * g) / (g + p);
       
       // Reach su users con fattore moltiplicatore 1.40 (considerando il pubblico one-to-many)
-      const reachOnUsers = Math.min(reach1Plus * 1.40, 100); // Massimo 100%
+      const standardReachOnUsers = Math.min(standardReach1Plus * 1.40, 100); // Massimo 100%
       
       // Reach in valore assoluto
-      const absoluteReach = Math.floor((reach1Plus / 100) * targetSizeValue);
+      const standardAbsoluteReach = Math.floor((standardReach1Plus / 100) * targetSizeValue);
       
       // Calcolo della frequenza media standard (GRP / reach)
-      const standardFrequency = g / reach1Plus;
+      const standardFrequency = g / standardReach1Plus;
       debugInfo.standardFrequency = standardFrequency;
       
-      // Frequenza finale da mostrare (standard o adattiva)
-      let finalFrequency = standardFrequency;
+      // Costo per reach point standard
+      const standardCostPerReach = budgetValue / standardReach1Plus;
       
-      // Se il modello adattivo è attivo, calcola la frequenza adattiva
+      // Valori finali che verranno mostrati (inizialmente impostati ai valori standard)
+      let finalFrequency = standardFrequency;
+      let finalReach1Plus = standardReach1Plus;
+      let finalReachOnUsers = standardReachOnUsers;
+      let finalAbsoluteReach = standardAbsoluteReach;
+      let finalCostPerReach = standardCostPerReach;
+      
+      // Se il modello adattivo è attivo, calcola la frequenza adattiva e aggiorna tutti i valori correlati
       if (useAdaptiveFrequency) {
         // Calcolo della densità delle impressioni
         console.log("Calcolo densità:", totalImpressions, "/", targetSizeValue);
@@ -164,13 +172,13 @@ const ReachLab = () => {
         debugInfo.targetCategory = 'Non definito';
         
         // Regola i fattori in base alla dimensione del target
-        if (targetSizeValue < 10000000) {
+        if (targetSizeValue < 100000) {
           // Target molto piccolo
           minFactor = 2.0;
           maxFactor = 4.0;
           midDensity = 2.0;
           debugInfo.targetCategory = 'Piccolo';
-        } else if (targetSizeValue < 22000000) {
+        } else if (targetSizeValue < 1000000) {
           // Target medio
           minFactor = 1.5;
           maxFactor = 3.0;
@@ -203,23 +211,30 @@ const ReachLab = () => {
         finalFrequency = standardFrequency * frequencyFactor;
         console.log("Frequenza adattata:", finalFrequency);
         debugInfo.adjustedFrequency = finalFrequency;
+        
+        // Ricalcola la reach in base alla frequenza adattata
+        // Se f = g/r, allora r = g/f
+        finalReach1Plus = g / finalFrequency;
+        console.log("Reach adattata:", finalReach1Plus);
+        
+        // Aggiorna gli altri valori correlati
+        finalReachOnUsers = Math.min(finalReach1Plus * 1.40, 100);
+        finalAbsoluteReach = Math.floor((finalReach1Plus / 100) * targetSizeValue);
+        finalCostPerReach = budgetValue / finalReach1Plus;
       }
       
-      // Costo per reach point
-      const costPerReach = budgetValue / reach1Plus;
-      
-      // Calcolo corretto del CPG (Costo per GRP)
+      // Calcolo del CPG (Costo per GRP) - invariato dal calcolo adattivo
       const costPerGrp = budgetValue / calculatedGrps;
       
       // Aggiorna lo stato dei risultati
       setResults({
         impressions: formatNumber(totalImpressions),
         grp: formatPercentage(calculatedGrps),
-        reach: formatNumber(absoluteReach),
-        reachPercentage: formatPercentage(reach1Plus),
-        reachUsersPercentage: formatPercentage(reachOnUsers),
+        reach: formatNumber(finalAbsoluteReach),
+        reachPercentage: formatPercentage(finalReach1Plus),
+        reachUsersPercentage: formatPercentage(finalReachOnUsers),
         frequency: finalFrequency.toFixed(2),
-        costPerReach: `€${formatNumber(costPerReach)}`,
+        costPerReach: `€${formatNumber(finalCostPerReach)}`,
         cpg: `€${formatNumber(costPerGrp)}`
       });
       
