@@ -405,7 +405,7 @@ const ReachLab = () => {
         <div className="form-grid-centered">
           <div className="form-group">
             <label htmlFor="targetSize" className="form-label">
-              Dimensione Target (persone)
+            Target Audience
             </label>
             <input
               type="text"
@@ -450,7 +450,7 @@ const ReachLab = () => {
               checked={useAdaptiveFrequency}
               onChange={(e) => setUseAdaptiveFrequency(e.target.checked)}
             />
-            <span className="switch-text">Usa modello di frequenza adattivo</span>
+            <span className="switch-text">Use adaptive frequency model</span>
           </label>
           <div className="switch-tooltip">
             Il modello adattivo simula una distribuzione di frequenza più realistica basata sulle dimensioni del target e del budget
