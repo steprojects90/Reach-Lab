@@ -43,6 +43,9 @@ const ReachLab = () => {
     cpg: '-'
   });
   
+  // Stato per le informazioni di debug
+  const [debugData, setDebugData] = useState({});
+  
   // Riferimento per il canvas
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -87,6 +90,18 @@ const ReachLab = () => {
   // Funzione principale per il calcolo
   const calculateResults = () => {
     try {
+      // Crea un oggetto per informazioni di debug
+      let debugInfo = {
+        standardFrequency: 0,
+        frequencyFactor: 0,
+        adjustedFrequency: 0,
+        targetCategory: '',
+        minFactor: 0,
+        maxFactor: 0,
+        midDensity: 0,
+        impressionDensity: 0
+      };
+      
       // Ottieni i valori di input
       const targetSizeValue = parseInt(targetSize.replace(/\./g, ''), 10) || 0;
       const budgetValue = parseInt(budget.replace(/\./g, ''), 10) || 0;
@@ -113,6 +128,7 @@ const ReachLab = () => {
       
       // Calcolo della frequenza media standard (GRP / reach)
       const standardFrequency = g / reach1Plus;
+      debugInfo.standardFrequency = standardFrequency;
       
       // Frequenza finale da mostrare (standard o adattiva)
       let finalFrequency = standardFrequency;
@@ -121,26 +137,34 @@ const ReachLab = () => {
       if (useAdaptiveFrequency) {
         // Calcolo adattivo del fattore di scala per la frequenza
         const impressionDensity = totalImpressions / targetSizeValue;
+        debugInfo.impressionDensity = impressionDensity;
         
         // Regola i fattori in base alla dimensione del target
         let minFactor, maxFactor, midDensity;
         
-        if (targetSizeValue < 14000000) {
+        if (targetSizeValue < 100000) {
           // Target molto piccolo
-          minFactor = 1.5;
-          maxFactor = 5.0;
+          minFactor = 2.0;  // Aumentato per rendere più evidente la differenza
+          maxFactor = 4.0;  // Aumentato per rendere più evidente la differenza
           midDensity = 2.0;
-        } else if (targetSizeValue < 24000000) {
+          debugInfo.targetCategory = 'Piccolo';
+        } else if (targetSizeValue < 1000000) {
           // Target medio
-          minFactor = 1.2;
-          maxFactor = 2.0;
+          minFactor = 1.5;  // Aumentato per rendere più evidente la differenza
+          maxFactor = 3.0;  // Aumentato per rendere più evidente la differenza
           midDensity = 4.0;
+          debugInfo.targetCategory = 'Medio';
         } else {
           // Target grande
-          minFactor = 1.0;
-          maxFactor = 1.5;
+          minFactor = 1.2;  // Aumentato per rendere più evidente la differenza
+          maxFactor = 2.0;  // Aumentato per rendere più evidente la differenza
           midDensity = 6.0;
+          debugInfo.targetCategory = 'Grande';
         }
+        
+        debugInfo.minFactor = minFactor;
+        debugInfo.maxFactor = maxFactor;
+        debugInfo.midDensity = midDensity;
         
         // Funzione che calcola un fattore di scala appropriato
         const calculateFrequencyFactor = (density) => {
@@ -149,9 +173,11 @@ const ReachLab = () => {
         
         // Calcola il fattore basato sulla densità delle impressioni
         const frequencyFactor = calculateFrequencyFactor(impressionDensity);
+        debugInfo.frequencyFactor = frequencyFactor;
         
         // Applica il fattore alla frequenza standard
         finalFrequency = standardFrequency * frequencyFactor;
+        debugInfo.adjustedFrequency = finalFrequency;
       }
       
       // Costo per reach point
@@ -171,6 +197,9 @@ const ReachLab = () => {
         costPerReach: `€${formatNumber(costPerReach)}`,
         cpg: `€${formatNumber(costPerGrp)}`
       });
+      
+      // Aggiorna le informazioni di debug
+      setDebugData(debugInfo);
       
       // Disegna la curva di reach
       setTimeout(() => {
@@ -397,6 +426,26 @@ const ReachLab = () => {
           </button>
         </div>
       </Card>
+      
+      {/* Sezione di debug - rimuovere dopo la risoluzione del problema */}
+      {Object.keys(debugData).length > 0 && (
+        <Card>
+          <h2 className="card-title">Informazioni di Debug</h2>
+          <div style={{ fontSize: '0.9rem' }}>
+            <p><strong>Modalità:</strong> {useAdaptiveFrequency ? 'Adattiva' : 'Standard'}</p>
+            <p><strong>Frequenza standard:</strong> {debugData.standardFrequency?.toFixed(2) || '-'}</p>
+            {useAdaptiveFrequency && (
+              <>
+                <p><strong>Categoria Target:</strong> {debugData.targetCategory || '-'}</p>
+                <p><strong>Densità Impressioni:</strong> {debugData.impressionDensity?.toFixed(4) || '-'}</p>
+                <p><strong>Fattori:</strong> min={debugData.minFactor}, max={debugData.maxFactor}, mid={debugData.midDensity}</p>
+                <p><strong>Fattore applicato:</strong> {debugData.frequencyFactor?.toFixed(4) || '-'}</p>
+                <p><strong>Frequenza adattata:</strong> {debugData.adjustedFrequency?.toFixed(2) || '-'}</p>
+              </>
+            )}
+          </div>
+        </Card>
+      )}
       
       <Card>
         <h2 className="card-title">Risultati Stimati</h2>
