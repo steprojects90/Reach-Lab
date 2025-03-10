@@ -180,9 +180,9 @@ const ReachLab = () => {
           debugInfo.targetCategory = 'Piccolo';
         } else if (targetSizeValue < 25000000) {
           // Target medio
-          minFactor = 1.5;
-          maxFactor = 3.0;
-          midDensity = 4.0;
+          minFactor = 2.5;
+          maxFactor = 5.0;
+          midDensity = 3.0;
           debugInfo.targetCategory = 'Medio';
         } else {
           // Target grande
