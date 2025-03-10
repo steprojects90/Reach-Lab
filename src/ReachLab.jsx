@@ -122,12 +122,28 @@ const ReachLab = () => {
         // Calcolo adattivo del fattore di scala per la frequenza
         const impressionDensity = totalImpressions / targetSizeValue;
         
+        // Regola i fattori in base alla dimensione del target
+        let minFactor, maxFactor, midDensity;
+        
+        if (targetSizeValue < 100000) {
+          // Target molto piccolo
+          minFactor = 1.5;
+          maxFactor = 3.0;
+          midDensity = 2.0;
+        } else if (targetSizeValue < 1000000) {
+          // Target medio
+          minFactor = 1.2;
+          maxFactor = 2.0;
+          midDensity = 4.0;
+        } else {
+          // Target grande
+          minFactor = 1.0;
+          maxFactor = 1.5;
+          midDensity = 6.0;
+        }
+        
         // Funzione che calcola un fattore di scala appropriato
         const calculateFrequencyFactor = (density) => {
-          const minFactor = 1.0;
-          const maxFactor = 2.0;
-          const midDensity = 5.0;
-          
           return minFactor + (maxFactor - minFactor) * (1 - Math.exp(-density / midDensity));
         };
         
