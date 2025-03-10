@@ -401,7 +401,7 @@ const ReachLab = () => {
       </div>
       
       <Card>
-        <h2 className="card-title text-center">Parametri Campagna</h2>
+        <h2 className="card-title text-center">Campaign Parameters</h2>
         <div className="form-grid-centered">
           <div className="form-group">
             <label htmlFor="targetSize" className="form-label">
@@ -488,20 +488,20 @@ const ReachLab = () => {
       )}
       
       <Card>
-        <h2 className="card-title">Risultati Stimati</h2>
+        <h2 className="card-title">Estimated Results</h2>
         <div className="results-grid">
           <div className="result-box result-box-primary">
-            <p className="result-label text-primary">Impressioni Totali</p>
+            <p className="result-label text-primary">Total Impressions</p>
             <p className="result-value">{results.impressions}</p>
           </div>
           
           <div className="result-box result-box-primary">
-            <p className="result-label text-primary">GRP</p>
+            <p className="result-label text-primary">GRPs</p>
             <p className="result-value">{results.grp}</p>
           </div>
           
           <div className="result-box result-box-success">
-            <p className="result-label text-success">Reach Stimata</p>
+            <p className="result-label text-success">Unique devices</p>
             <p className="result-value">{results.reach}</p>
           </div>
           
@@ -526,7 +526,7 @@ const ReachLab = () => {
           </div>
           
           <div className="result-box result-box-warning">
-            <p className="result-label text-warning">Costo per Reach Point</p>
+            <p className="result-label text-warning">Cost per Reach Point</p>
             <p className="result-value">{results.costPerReach}</p>
           </div>
           
@@ -538,7 +538,7 @@ const ReachLab = () => {
       </Card>
       
       <Card>
-        <h2 className="card-title">Curva di Reach</h2>
+        <h2 className="card-title">Reach Curve</h2>
         <div ref={containerRef} className="canvas-container">
           <canvas ref={canvasRef}></canvas>
         </div>
