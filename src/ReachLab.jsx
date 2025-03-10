@@ -172,13 +172,13 @@ const ReachLab = () => {
         debugInfo.targetCategory = 'Non definito';
         
         // Regola i fattori in base alla dimensione del target
-        if (targetSizeValue < 100000) {
+        if (targetSizeValue < 10000000) {
           // Target molto piccolo
           minFactor = 2.0;
           maxFactor = 4.0;
           midDensity = 2.0;
           debugInfo.targetCategory = 'Piccolo';
-        } else if (targetSizeValue < 1000000) {
+        } else if (targetSizeValue < 25000000) {
           // Target medio
           minFactor = 1.5;
           maxFactor = 3.0;
