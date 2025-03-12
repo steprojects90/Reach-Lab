@@ -43,9 +43,6 @@ const ReachLab = () => {
     cpg: '-'
   });
   
-  // Stato per le informazioni di debug
-  const [debugData, setDebugData] = useState({});
-  
   // Riferimento per il canvas
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -90,44 +87,21 @@ const ReachLab = () => {
   // Funzione principale per il calcolo
   const calculateResults = () => {
     try {
-      // Crea un oggetto per informazioni di debug
-      let debugInfo = {
-        standardFrequency: 0,
-        frequencyFactor: 0,
-        adjustedFrequency: 0,
-        targetCategory: '',
-        minFactor: 0,
-        maxFactor: 0,
-        midDensity: 0,
-        impressionDensity: 0
-      };
-      
       // Ottieni i valori di input
-      console.log("targetSize originale:", targetSize);
       const targetSizeClean = targetSize.replace(/\./g, '');
-      console.log("targetSize pulito:", targetSizeClean);
       const targetSizeValue = parseInt(targetSizeClean, 10) || 1000000;
-      console.log("targetSizeValue finale:", targetSizeValue);
       
-      console.log("budget originale:", budget);
       const budgetClean = budget.replace(/\./g, '');
-      console.log("budget pulito:", budgetClean);
       const budgetValue = parseInt(budgetClean, 10) || 50000;
-      console.log("budgetValue finale:", budgetValue);
       
-      console.log("cpm originale:", cpm);
       const cpmClean = cpm.replace(',', '.');
-      console.log("cpm pulito:", cpmClean);
       const cpmValue = parseFloat(cpmClean) || 25;
-      console.log("cpmValue finale:", cpmValue);
       
       // Calcolo delle impressioni totali
       const totalImpressions = Math.floor(budgetValue / (cpmValue / 1000));
-      console.log("Impressioni totali:", totalImpressions);
       
       // Calcolo dei GRP
       const calculatedGrps = (totalImpressions / targetSizeValue) * 100;
-      console.log("GRP calcolati:", calculatedGrps);
       
       // Parametri per il calcolo della reach
       const p = channelPotential;
@@ -145,7 +119,6 @@ const ReachLab = () => {
       
       // Calcolo della frequenza media standard (GRP / reach)
       const standardFrequency = g / standardReach1Plus;
-      debugInfo.standardFrequency = standardFrequency;
       
       // Costo per reach point standard
       const standardCostPerReach = budgetValue / standardReach1Plus;
@@ -160,41 +133,30 @@ const ReachLab = () => {
       // Se il modello adattivo è attivo, calcola la frequenza adattiva e aggiorna tutti i valori correlati
       if (useAdaptiveFrequency) {
         // Calcolo della densità delle impressioni
-        console.log("Calcolo densità:", totalImpressions, "/", targetSizeValue);
         const impressionDensity = targetSizeValue > 0 ? totalImpressions / targetSizeValue : 0;
-        console.log("Densità impressioni:", impressionDensity);
-        debugInfo.impressionDensity = impressionDensity;
         
         // Imposta valori predefiniti
         let minFactor = 1.0;
         let maxFactor = 2.0;
         let midDensity = 5.0;
-        debugInfo.targetCategory = 'Non definito';
         
         // Regola i fattori in base alla dimensione del target
         if (targetSizeValue < 10000000) {
-          // Target molto piccolo
+          // Target piccolo
           minFactor = 2.6;
           maxFactor = 5.0;
-          midDensity = 2.0;
-          debugInfo.targetCategory = 'Piccolo';
+          midDensity = 1.5;
         } else if (targetSizeValue < 25000000) {
           // Target medio
           minFactor = 2.5;
           maxFactor = 5.0;
           midDensity = 3.0;
-          debugInfo.targetCategory = 'Medio';
         } else {
           // Target grande
           minFactor = 2.2;
           maxFactor = 4.0;
           midDensity = 4.0;
-          debugInfo.targetCategory = 'Grande';
         }
-        
-        debugInfo.minFactor = minFactor;
-        debugInfo.maxFactor = maxFactor;
-        debugInfo.midDensity = midDensity;
         
         // Funzione che calcola un fattore di scala appropriato
         const calculateFrequencyFactor = (density) => {
@@ -204,18 +166,13 @@ const ReachLab = () => {
         
         // Calcola il fattore basato sulla densità delle impressioni
         const frequencyFactor = calculateFrequencyFactor(impressionDensity);
-        console.log("Fattore calcolato:", frequencyFactor);
-        debugInfo.frequencyFactor = frequencyFactor;
         
         // Applica il fattore alla frequenza standard
         finalFrequency = standardFrequency * frequencyFactor;
-        console.log("Frequenza adattata:", finalFrequency);
-        debugInfo.adjustedFrequency = finalFrequency;
         
         // Ricalcola la reach in base alla frequenza adattata
         // Se f = g/r, allora r = g/f
         finalReach1Plus = g / finalFrequency;
-        console.log("Reach adattata:", finalReach1Plus);
         
         // Aggiorna gli altri valori correlati
         finalReachOnUsers = Math.min(finalReach1Plus * 1.40, 100);
@@ -237,9 +194,6 @@ const ReachLab = () => {
         costPerReach: `€${formatNumber(finalCostPerReach)}`,
         cpg: `€${formatNumber(costPerGrp)}`
       });
-      
-      // Aggiorna le informazioni di debug
-      setDebugData(debugInfo);
       
       // Disegna la curva di reach
       setTimeout(() => {
@@ -401,11 +355,11 @@ const ReachLab = () => {
       </div>
       
       <Card>
-        <h2 className="card-title text-center">Campaign Parameters</h2>
+        <h2 className="card-title text-center">Parametri Campagna</h2>
         <div className="form-grid-centered">
           <div className="form-group">
             <label htmlFor="targetSize" className="form-label">
-            Target Audience
+              Dimensione Target (persone)
             </label>
             <input
               type="text"
@@ -450,7 +404,7 @@ const ReachLab = () => {
               checked={useAdaptiveFrequency}
               onChange={(e) => setUseAdaptiveFrequency(e.target.checked)}
             />
-            <span className="switch-text">Use adaptive frequency model</span>
+            <span className="switch-text">Usa modello di frequenza adattivo</span>
           </label>
           <div className="switch-tooltip">
             Il modello adattivo simula una distribuzione di frequenza più realistica basata sulle dimensioni del target e del budget
@@ -467,41 +421,21 @@ const ReachLab = () => {
         </div>
       </Card>
       
-      {/* Sezione di debug - rimuovere dopo la risoluzione del problema */}
-      {Object.keys(debugData).length > 0 && (
-        <Card>
-          <h2 className="card-title">Informazioni di Debug</h2>
-          <div style={{ fontSize: '0.9rem' }}>
-            <p><strong>Modalità:</strong> {useAdaptiveFrequency ? 'Adattiva' : 'Standard'}</p>
-            <p><strong>Frequenza standard:</strong> {debugData.standardFrequency?.toFixed(2) || '-'}</p>
-            {useAdaptiveFrequency && (
-              <>
-                <p><strong>Categoria Target:</strong> {debugData.targetCategory || '-'}</p>
-                <p><strong>Densità Impressioni:</strong> {debugData.impressionDensity?.toFixed(4) || '-'}</p>
-                <p><strong>Fattori:</strong> min={debugData.minFactor}, max={debugData.maxFactor}, mid={debugData.midDensity}</p>
-                <p><strong>Fattore applicato:</strong> {debugData.frequencyFactor?.toFixed(4) || '-'}</p>
-                <p><strong>Frequenza adattata:</strong> {debugData.adjustedFrequency?.toFixed(2) || '-'}</p>
-              </>
-            )}
-          </div>
-        </Card>
-      )}
-      
       <Card>
-        <h2 className="card-title">Estimated Results</h2>
+        <h2 className="card-title">Risultati Stimati</h2>
         <div className="results-grid">
           <div className="result-box result-box-primary">
-            <p className="result-label text-primary">Total Impressions</p>
+            <p className="result-label text-primary">Impressioni Totali</p>
             <p className="result-value">{results.impressions}</p>
           </div>
           
           <div className="result-box result-box-primary">
-            <p className="result-label text-primary">GRPs</p>
+            <p className="result-label text-primary">GRP</p>
             <p className="result-value">{results.grp}</p>
           </div>
           
           <div className="result-box result-box-success">
-            <p className="result-label text-success">Unique devices</p>
+            <p className="result-label text-success">Reach Stimata</p>
             <p className="result-value">{results.reach}</p>
           </div>
           
@@ -517,7 +451,7 @@ const ReachLab = () => {
           
           <div className="result-box result-box-warning">
             <p className="result-label text-warning">
-            Average Frequency
+              Frequenza Media
               {useAdaptiveFrequency && (
                 <span className="tooltip" title="Frequenza adattata per riflettere la distribuzione reale delle impressioni">ℹ️</span>
               )}
@@ -526,19 +460,19 @@ const ReachLab = () => {
           </div>
           
           <div className="result-box result-box-warning">
-            <p className="result-label text-warning">Cost per Reach Point</p>
+            <p className="result-label text-warning">Costo per Reach Point</p>
             <p className="result-value">{results.costPerReach}</p>
           </div>
           
           <div className="result-box result-box-warning">
-            <p className="result-label text-warning">Cost per GRP</p>
+            <p className="result-label text-warning">Costo per GRP</p>
             <p className="result-value">{results.cpg}</p>
           </div>
         </div>
       </Card>
       
       <Card>
-        <h2 className="card-title">Reach Curve</h2>
+        <h2 className="card-title">Curva di Reach</h2>
         <div ref={containerRef} className="canvas-container">
           <canvas ref={canvasRef}></canvas>
         </div>
