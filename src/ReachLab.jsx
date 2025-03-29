@@ -90,6 +90,12 @@ const ReachLab = () => {
   // Funzione principale per il calcolo
   const calculateResults = () => {
     try {
+      // Parametri per il calcolo del fattore di durata
+      const DURATION_MAX_FACTOR = 1.2;  // Fattore massimo (campagne brevi)
+      const DURATION_MIN_FACTOR = 0.8;  // Fattore minimo (campagne lunghe)
+      const DURATION_REFERENCE = 30;    // Durata di riferimento in giorni
+      const DURATION_SCALE = 150;       // Divisore per il cambiamento del fattore
+      
       // Ottieni i valori di input
       const targetSizeClean = targetSize.replace(/\./g, '');
       const targetSizeValue = parseInt(targetSizeClean, 10) || 1000000;
@@ -124,7 +130,7 @@ const ReachLab = () => {
       let midDensity;
       if (targetSizeValue < 10000000) {
         // Target piccolo
-        midDensity = 1.5;
+        midDensity = 2.5;
       } else if (targetSizeValue < 25000000) {
         // Target medio
         midDensity = 3.0;
@@ -135,7 +141,9 @@ const ReachLab = () => {
       
       // Calcola il fattore di durata della campagna
       // Campagne più lunghe tendono ad avere una distribuzione delle impressioni più diluita
-      const durationFactor = Math.min(1.2, Math.max(0.8, 1 - (campaignDays - 30) / 150));
+      const durationFactor = Math.min(DURATION_MAX_FACTOR, 
+                                      Math.max(DURATION_MIN_FACTOR, 
+                                              1 - (campaignDays - DURATION_REFERENCE) / DURATION_SCALE));
       
       // Nuovo calcolo della frequenza usando solo la densità delle impressioni e la durata
       const frequencyAdjustmentFactor = 1 + Math.log10(1 + impressionDensity / midDensity);
@@ -498,6 +506,13 @@ const ReachLab = () => {
           <li>Target piccolo (&lt;10M): midDensity = 2.5</li>
           <li>Target medio (10M-25M): midDensity = 3.0</li>
           <li>Target grande (&gt;25M): midDensity = 4.0</li>
+        </ul>
+        <p>I parametri del fattore di durata della campagna sono configurabili nel codice:</p>
+        <ul className="list">
+          <li>DURATION_MAX_FACTOR = 1.2 (Fattore massimo per campagne brevi)</li>
+          <li>DURATION_MIN_FACTOR = 0.8 (Fattore minimo per campagne lunghe)</li>
+          <li>DURATION_REFERENCE = 30 (Durata di riferimento in giorni, dove il fattore è neutro)</li>
+          <li>DURATION_SCALE = 150 (Divisore che controlla quanto rapidamente cambia il fattore)</li>
         </ul>
         <p>La durata della campagna influisce sulla distribuzione delle impressioni: campagne più lunghe tendono ad avere una frequenza più diluita.</p>
       </Card>
