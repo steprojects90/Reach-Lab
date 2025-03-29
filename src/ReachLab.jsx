@@ -25,7 +25,6 @@ const ReachLab = () => {
   const [targetSize, setTargetSize] = useState('1.000.000');
   const [budget, setBudget] = useState('50.000');
   const [cpm, setCpm] = useState('25');
-  const [useAdaptiveFrequency, setUseAdaptiveFrequency] = useState(true);
   
   // Stati nascosti (non mostrati nell'UI ma usati nei calcoli)
   const [campaignDays] = useState(30);
@@ -107,78 +106,62 @@ const ReachLab = () => {
       const p = channelPotential;
       const g = calculatedGrps;
       
-      // Calcolo standard (non adattivo)
+      // Calcolo standard come punto di partenza
       // Formula della reach 1+ (percentuale del target) - Reach su devices
       const standardReach1Plus = (p * g) / (g + p);
-      
-      // Reach su users con fattore moltiplicatore 1.40 (considerando il pubblico one-to-many)
-      const standardReachOnUsers = Math.min(standardReach1Plus * 1.40, 100); // Massimo 100%
-      
-      // Reach in valore assoluto
-      const standardAbsoluteReach = Math.floor((standardReach1Plus / 100) * targetSizeValue);
       
       // Calcolo della frequenza media standard (GRP / reach)
       const standardFrequency = g / standardReach1Plus;
       
-      // Costo per reach point standard
-      const standardCostPerReach = budgetValue / standardReach1Plus;
+      // Calcolo adattivo della frequenza
+      // Calcolo della densità delle impressioni
+      const impressionDensity = targetSizeValue > 0 ? totalImpressions / targetSizeValue : 0;
       
-      // Valori finali che verranno mostrati (inizialmente impostati ai valori standard)
-      let finalFrequency = standardFrequency;
-      let finalReach1Plus = standardReach1Plus;
-      let finalReachOnUsers = standardReachOnUsers;
-      let finalAbsoluteReach = standardAbsoluteReach;
-      let finalCostPerReach = standardCostPerReach;
+      // Imposta parametri in base alla dimensione del target
+      let minFactor, maxFactor, midDensity;
       
-      // Se il modello adattivo è attivo, calcola la frequenza adattiva e aggiorna tutti i valori correlati
-      if (useAdaptiveFrequency) {
-        // Calcolo della densità delle impressioni
-        const impressionDensity = targetSizeValue > 0 ? totalImpressions / targetSizeValue : 0;
-        
-        // Imposta valori predefiniti
-        let minFactor = 1.0;
-        let maxFactor = 2.0;
-        let midDensity = 5.0;
-        
-        // Regola i fattori in base alla dimensione del target
-        if (targetSizeValue < 10000000) {
-          // Target piccolo
-          minFactor = 2.6;
-          maxFactor = 5.0;
-          midDensity = 2.0;
-        } else if (targetSizeValue < 25000000) {
-          // Target medio
-          minFactor = 2.5;
-          maxFactor = 5.0;
-          midDensity = 3.0;
-        } else {
-          // Target grande
-          minFactor = 2.2;
-          maxFactor = 4.0;
-          midDensity = 4.0;
-        }
-        
-        // Funzione che calcola un fattore di scala appropriato
-        const calculateFrequencyFactor = (density) => {
-          if (density <= 0) return minFactor;
-          return minFactor + (maxFactor - minFactor) * (1 - Math.exp(-density / midDensity));
-        };
-        
-        // Calcola il fattore basato sulla densità delle impressioni
-        const frequencyFactor = calculateFrequencyFactor(impressionDensity);
-        
-        // Applica il fattore alla frequenza standard
-        finalFrequency = standardFrequency * frequencyFactor;
-        
-        // Ricalcola la reach in base alla frequenza adattata
-        // Se f = g/r, allora r = g/f
-        finalReach1Plus = g / finalFrequency;
-        
-        // Aggiorna gli altri valori correlati
-        finalReachOnUsers = Math.min(finalReach1Plus * 1.40, 100);
-        finalAbsoluteReach = Math.floor((finalReach1Plus / 100) * targetSizeValue);
-        finalCostPerReach = budgetValue / finalReach1Plus;
+      // Regola i fattori in base alla dimensione del target
+      if (targetSizeValue < 10000000) {
+        // Target piccolo
+        minFactor = 2.6;
+        maxFactor = 5.0;
+        midDensity = 1.5;
+      } else if (targetSizeValue < 25000000) {
+        // Target medio
+        minFactor = 2.5;
+        maxFactor = 5.0;
+        midDensity = 3.0;
+      } else {
+        // Target grande
+        minFactor = 2.2;
+        maxFactor = 4.0;
+        midDensity = 4.0;
       }
+      
+      // Funzione che calcola un fattore di scala appropriato
+      const calculateFrequencyFactor = (density) => {
+        if (density <= 0) return minFactor;
+        return minFactor + (maxFactor - minFactor) * (1 - Math.exp(-density / midDensity));
+      };
+      
+      // Calcola il fattore basato sulla densità delle impressioni
+      const frequencyFactor = calculateFrequencyFactor(impressionDensity);
+      
+      // Applica il fattore alla frequenza standard
+      const finalFrequency = standardFrequency * frequencyFactor;
+      
+      // Ricalcola la reach in base alla frequenza adattata
+      // Se f = g/r, allora r = g/f
+      const finalReach1Plus = g / finalFrequency;
+      
+      // Reach su users con fattore moltiplicatore 1.40 (considerando il pubblico one-to-many)
+      const finalReachOnUsers = Math.min(finalReach1Plus * 1.40, 100); // Massimo 100%
+      
+      // Reach in valore assoluto
+      const finalAbsoluteReach = Math.floor((finalReach1Plus / 100) * targetSizeValue);
+      
+      // Costo per reach point
+      const finalCostPerReach = budgetValue / finalReach1Plus;
       
       // Calcolo del CPG (Costo per GRP) - invariato dal calcolo adattivo
       const costPerGrp = budgetValue / calculatedGrps;
@@ -397,20 +380,6 @@ const ReachLab = () => {
           </div>
         </div>
         
-        <div className="switch-container">
-          <label className="switch-label">
-            <input
-              type="checkbox"
-              checked={useAdaptiveFrequency}
-              onChange={(e) => setUseAdaptiveFrequency(e.target.checked)}
-            />
-            <span className="switch-text">Usa modello di frequenza adattivo</span>
-          </label>
-          <div className="switch-tooltip">
-            Il modello adattivo simula una distribuzione di frequenza più realistica basata sulle dimensioni del target e del budget
-          </div>
-        </div>
-        
         <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
           <button
             onClick={calculateResults}
@@ -452,9 +421,7 @@ const ReachLab = () => {
           <div className="result-box result-box-warning">
             <p className="result-label text-warning">
               Frequenza Media
-              {useAdaptiveFrequency && (
-                <span className="tooltip" title="Frequenza adattata per riflettere la distribuzione reale delle impressioni">ℹ️</span>
-              )}
+              <span className="tooltip" title="Frequenza adattata per riflettere la distribuzione reale delle impressioni">ℹ️</span>
             </p>
             <p className="result-value">{results.frequency}</p>
           </div>
