@@ -254,3 +254,18 @@
       max-width: 100%;
     }
   }
+
+  .invisible-box {
+    visibility: hidden;
+    opacity: 0;
+  }
+  
+  @media (max-width: 640px) {
+    .hide-on-small {
+      display: none;
+    }
+    
+    .results-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }

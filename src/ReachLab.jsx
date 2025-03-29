@@ -445,10 +445,10 @@ const ReachLab = () => {
             <p className="result-label text-warning">Costo per GRP</p>
             <p className="result-value">{results.cpg}</p>
           </div>
-        </div>
-        
-        {/* Contenitore centrato per i costi per reach point */}
-        <div className="cost-per-reach-container">
+          
+          {/* Riga per i costi per reach point con container invisibili ai lati */}
+          <div className="result-box invisible-box hide-on-small"></div>
+          
           <div className="result-box result-box-warning">
             <p className="result-label text-warning">Costo per Reach Point/Devices</p>
             <p className="result-value">{results.costPerReachPointDevices}</p>
@@ -458,6 +458,8 @@ const ReachLab = () => {
             <p className="result-label text-warning">Costo per Reach Point/Users</p>
             <p className="result-value">{results.costPerReachPointUsers}</p>
           </div>
+          
+          <div className="result-box invisible-box hide-on-small"></div>
         </div>
       </Card>
       
