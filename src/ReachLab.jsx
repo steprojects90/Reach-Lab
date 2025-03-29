@@ -25,9 +25,9 @@ const ReachLab = () => {
   const [targetSize, setTargetSize] = useState('1.000.000');
   const [budget, setBudget] = useState('50.000');
   const [cpm, setCpm] = useState('25');
+  const [campaignDays, setCampaignDays] = useState(30); // Durata della campagna in giorni
   
   // Stati nascosti (non mostrati nell'UI ma usati nei calcoli)
-  const [campaignDays] = useState(30);
   const [channelPotential] = useState(80);
   
   // Stati per i risultati
@@ -117,42 +117,31 @@ const ReachLab = () => {
       // Calcolo della frequenza media standard (GRP / reach)
       const standardFrequency = g / standardReach1Plus;
       
-      // Calcolo adattivo della frequenza
-      // Calcolo della densità delle impressioni
+      // Calcolo adattivo della frequenza basato sulla densità delle impressioni
       const impressionDensity = targetSizeValue > 0 ? totalImpressions / targetSizeValue : 0;
       
-      // Imposta parametri in base alla dimensione del target
-      let minFactor, maxFactor, midDensity;
-      
-      // Regola i fattori in base alla dimensione del target
+      // Determina midDensity in base alla dimensione del target
+      let midDensity;
       if (targetSizeValue < 10000000) {
         // Target piccolo
-        minFactor = 2.6;
-        maxFactor = 5.0;
-        midDensity = 1.5;
+        midDensity = 2.5;
       } else if (targetSizeValue < 25000000) {
         // Target medio
-        minFactor = 2.5;
-        maxFactor = 5.0;
         midDensity = 3.0;
       } else {
         // Target grande
-        minFactor = 2.2;
-        maxFactor = 4.0;
         midDensity = 4.0;
       }
       
-      // Funzione che calcola un fattore di scala appropriato
-      const calculateFrequencyFactor = (density) => {
-        if (density <= 0) return minFactor;
-        return minFactor + (maxFactor - minFactor) * (1 - Math.exp(-density / midDensity));
-      };
+      // Calcola il fattore di durata della campagna
+      // Campagne più lunghe tendono ad avere una distribuzione delle impressioni più diluita
+      const durationFactor = Math.min(1.2, Math.max(0.8, 1 - (campaignDays - 30) / 150));
       
-      // Calcola il fattore basato sulla densità delle impressioni
-      const frequencyFactor = calculateFrequencyFactor(impressionDensity);
+      // Nuovo calcolo della frequenza usando solo la densità delle impressioni e la durata
+      const frequencyAdjustmentFactor = 1 + Math.log10(1 + impressionDensity / midDensity);
       
-      // Applica il fattore alla frequenza standard
-      const finalFrequency = standardFrequency * frequencyFactor;
+      // Applica i fattori di aggiustamento alla frequenza standard
+      const finalFrequency = standardFrequency * frequencyAdjustmentFactor * durationFactor;
       
       // Ricalcola la reach in base alla frequenza adattata
       // Se f = g/r, allora r = g/f
@@ -399,6 +388,21 @@ const ReachLab = () => {
               className="form-input"
             />
           </div>
+          
+          <div className="form-group">
+            <label htmlFor="campaignDays" className="form-label">
+              Durata Campagna (giorni)
+            </label>
+            <input
+              type="number"
+              id="campaignDays"
+              value={campaignDays}
+              onChange={(e) => setCampaignDays(parseInt(e.target.value) || 30)}
+              min="1"
+              max="365"
+              className="form-input"
+            />
+          </div>
         </div>
         
         <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
@@ -479,6 +483,23 @@ const ReachLab = () => {
         <div ref={containerRef} className="canvas-container">
           <canvas ref={canvasRef}></canvas>
         </div>
+      </Card>
+      
+      <Card>
+        <h2 className="card-title">Note sul Modello di Calcolo</h2>
+        <p>Questo calcolatore utilizza le formule standard dell'anatomia delle curve di reach, con adattamenti per la Advanced TV:</p>
+        <ul className="list">
+          <li>Formula fondamentale della reach: r = (pg)/(g+p) dove r è la reach, p è il potenziale del canale e g sono i GRP</li>
+          <li>Frequenza media adattata in base alla densità delle impressioni e alla durata della campagna</li>
+          <li>Fattore di conversione da reach su device a reach su utenti: 1.4x</li>
+        </ul>
+        <p>Il parametro "midDensity" viene calibrato automaticamente in base alla dimensione del target:</p>
+        <ul className="list">
+          <li>Target piccolo (&lt;10M): midDensity = 2.5</li>
+          <li>Target medio (10M-25M): midDensity = 3.0</li>
+          <li>Target grande (&gt;25M): midDensity = 4.0</li>
+        </ul>
+        <p>La durata della campagna influisce sulla distribuzione delle impressioni: campagne più lunghe tendono ad avere una frequenza più diluita.</p>
       </Card>
     </div>
   );
