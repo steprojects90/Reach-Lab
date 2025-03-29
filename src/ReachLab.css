@@ -236,21 +236,26 @@
   }
 
   .cost-per-reach-container {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
     margin-top: 1rem;
-    flex-wrap: wrap;
+    width: 100%;
+    max-width: 100%;
   }
   
   .cost-per-reach-container .result-box {
-    flex: 0 0 300px;
-    max-width: 300px;
+    width: 100%;
   }
   
   @media (max-width: 640px) {
-    .cost-per-reach-container .result-box {
-      flex: 1 0 100%;
-      max-width: 100%;
+    .cost-per-reach-container {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .cost-per-reach-container {
+      grid-template-columns: repeat(2, 1fr);
     }
   }
