@@ -234,3 +234,23 @@
       grid-template-columns: repeat(3, 1fr);
     }
   }
+
+  .cost-per-reach-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+  
+  .cost-per-reach-container .result-box {
+    flex: 0 0 300px;
+    max-width: 300px;
+  }
+  
+  @media (max-width: 640px) {
+    .cost-per-reach-container .result-box {
+      flex: 1 0 100%;
+      max-width: 100%;
+    }
+  }
