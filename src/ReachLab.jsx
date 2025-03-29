@@ -371,7 +371,7 @@ const ReachLab = () => {
       
       <Card>
         <h2 className="card-title text-center">Parametri Campagna</h2>
-        <div className="form-grid-centered">
+        <div className="form-grid-centered" style={{ gap: '2rem' }}>
           <div className="form-group">
             <label htmlFor="targetSize" className="form-label">
               Dimensione Target (persone)
@@ -490,23 +490,6 @@ const ReachLab = () => {
         <div ref={containerRef} className="canvas-container">
           <canvas ref={canvasRef}></canvas>
         </div>
-      </Card>
-      
-      <Card>
-        <h2 className="card-title">Note sul Modello di Calcolo</h2>
-        <p>Questo calcolatore utilizza le formule standard dell'anatomia delle curve di reach, con adattamenti per la Advanced TV:</p>
-        <ul className="list">
-          <li>Formula fondamentale della reach: r = (pg)/(g+p) dove r è la reach, p è il potenziale del canale e g sono i GRP</li>
-          <li>Frequenza media adattata in base alla densità delle impressioni</li>
-          <li>Fattore di conversione da reach su device a reach su utenti: 1.4x</li>
-        </ul>
-        <p>Il parametro "midDensity" viene calibrato automaticamente in base alla dimensione del target:</p>
-        <ul className="list">
-          <li>Target piccolo (&lt;10M): midDensity = 0.01</li>
-          <li>Target medio (10M-25M): midDensity = 0.0064</li>
-          <li>Target grande (&gt;25M): midDensity = 0.009</li>
-        </ul>
-        <p>Questi valori sono stati ottimizzati per fornire stime di frequenza realistiche per diverse dimensioni di target.</p>
       </Card>
     </div>
   );
