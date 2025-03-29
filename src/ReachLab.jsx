@@ -130,13 +130,13 @@ const ReachLab = () => {
       let midDensity;
       if (targetSizeValue < 10000000) {
         // Target piccolo
-        midDensity = 2.5;
+        midDensity = 1.0;
       } else if (targetSizeValue < 25000000) {
         // Target medio
-        midDensity = 3.0;
+        midDensity = 2.0;
       } else {
         // Target grande
-        midDensity = 4.0;
+        midDensity = 3.0;
       }
       
       // Calcola il fattore di durata della campagna
