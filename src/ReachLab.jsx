@@ -126,10 +126,10 @@ const ReachLab = () => {
         midDensity = 0.0032;
       } else if (targetSizeValue < 25000000) {
         // Target medio
-        midDensity = 0.0064;
+        midDensity = 0.0023;
       } else {
         // Target grande
-        midDensity = 0.009;
+        midDensity = 0.0043;
       }
       
       // Nuovo calcolo della frequenza usando solo la densità delle impressioni
