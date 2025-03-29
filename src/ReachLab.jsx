@@ -34,14 +34,14 @@ const ReachLab = () => {
   const [results, setResults] = useState({
     impressions: '-',
     grp: '-',
-    uniqueDevices: '-',               // Rinominato da reach
-    netContacts: '-',                 // Nuovo campo: contatti netti
+    uniqueDevices: '-',
+    netContacts: '-',
     reachPercentage: '-',
     reachUsersPercentage: '-',
     frequency: '-',
-    costPerReachPointDevices: '-',    // Rinominato da costPerReach
-    costPerReachPointUsers: '-',      // Nuovo campo
-    cpg: '-'
+    cpg: '-',
+    costPerReachPointDevices: '-',
+    costPerReachPointUsers: '-'
   });
   
   // Riferimento per il canvas
@@ -127,7 +127,7 @@ const ReachLab = () => {
         // Target piccolo
         minFactor = 2.6;
         maxFactor = 5.0;
-        midDensity = 2.0;
+        midDensity = 1.5;
       } else if (targetSizeValue < 25000000) {
         // Target medio
         minFactor = 2.5;
@@ -165,14 +165,14 @@ const ReachLab = () => {
       // Contatti netti (nuova metrica: 1.4 * uniqueDevices)
       const netContacts = Math.floor(uniqueDevices * 1.4);
       
+      // Costo per GRP
+      const costPerGrp = budgetValue / calculatedGrps;
+      
       // Costo per reach point/devices
       const costPerReachPointDevices = budgetValue / finalReach1Plus;
       
       // Costo per reach point/users
       const costPerReachPointUsers = budgetValue / finalReachOnUsers;
-      
-      // Calcolo del CPG (Costo per GRP)
-      const costPerGrp = budgetValue / calculatedGrps;
       
       // Aggiorna lo stato dei risultati
       setResults({
@@ -183,9 +183,9 @@ const ReachLab = () => {
         reachPercentage: formatPercentage(finalReach1Plus),
         reachUsersPercentage: formatPercentage(finalReachOnUsers),
         frequency: finalFrequency.toFixed(2),
+        cpg: `€${formatNumber(costPerGrp)}`,
         costPerReachPointDevices: `€${formatNumber(costPerReachPointDevices)}`,
-        costPerReachPointUsers: `€${formatNumber(costPerReachPointUsers)}`,
-        cpg: `€${formatNumber(costPerGrp)}`
+        costPerReachPointUsers: `€${formatNumber(costPerReachPointUsers)}`
       });
       
       // Disegna la curva di reach
@@ -442,6 +442,14 @@ const ReachLab = () => {
           </div>
           
           <div className="result-box result-box-warning">
+            <p className="result-label text-warning">Costo per GRP</p>
+            <p className="result-value">{results.cpg}</p>
+          </div>
+        </div>
+        
+        {/* Contenitore centrato per i costi per reach point */}
+        <div className="cost-per-reach-container">
+          <div className="result-box result-box-warning">
             <p className="result-label text-warning">Costo per Reach Point/Devices</p>
             <p className="result-value">{results.costPerReachPointDevices}</p>
           </div>
@@ -449,11 +457,6 @@ const ReachLab = () => {
           <div className="result-box result-box-warning">
             <p className="result-label text-warning">Costo per Reach Point/Users</p>
             <p className="result-value">{results.costPerReachPointUsers}</p>
-          </div>
-          
-          <div className="result-box result-box-warning">
-            <p className="result-label text-warning">Costo per GRP</p>
-            <p className="result-value">{results.cpg}</p>
           </div>
         </div>
       </Card>
