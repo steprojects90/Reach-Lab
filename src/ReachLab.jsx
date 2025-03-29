@@ -71,28 +71,26 @@ const ReachLab = () => {
   
   // Funzione per gestire l'input formattato con separatori delle migliaia e validazione
   const handleFormattedInput = (value, setter, minValue = 0, fieldName = '') => {
-    // Rimuovi tutti i caratteri non numerici
+    // Rimuovi tutti i caratteri non numerici, ma mantieni il valore originale
+    const originalValue = value;
     const numericValue = value.replace(/\D/g, '');
     
-    // Verifica che ci sia un valore
+    // Permetti sempre di digitare, anche se il valore non è completo
     if (numericValue) {
-      const parsedValue = parseInt(numericValue, 10);
-      
-      // Verifica il valore minimo
-      if (parsedValue < minValue) {
-        alert(`${fieldName} non può essere inferiore a ${minValue.toLocaleString('it-IT')}`);
-        // Imposta al valore minimo
-        const minValueFormatted = minValue.toLocaleString('it-IT');
-        setter(minValueFormatted);
-        return;
+      try {
+        const parsedValue = parseInt(numericValue, 10);
+        // Formatta il numero con i separatori delle migliaia
+        const formattedValue = parsedValue.toLocaleString('it-IT');
+        setter(formattedValue);
+      } catch (e) {
+        // In caso di errore, mantieni il valore originale
+        setter(originalValue);
       }
-      
-      // Formatta il numero con i separatori delle migliaia
-      const formattedValue = parsedValue.toLocaleString('it-IT');
-      setter(formattedValue);
     } else {
       setter('');
     }
+    
+    // Non mostrare alert durante la digitazione - la validazione avverrà solo al momento del calcolo
   };
   
   // Funzione per validare input numerici semplici
@@ -152,13 +150,13 @@ const ReachLab = () => {
       let midDensity;
       if (targetSizeValue < 10000000) {
         // Target piccolo
-        midDensity = 0.0032;
+        midDensity = 0.01;
       } else if (targetSizeValue < 25000000) {
         // Target medio
-        midDensity = 0.0027;
+        midDensity = 0.0064;
       } else {
         // Target grande
-        midDensity = 0.0035;
+        midDensity = 0.009;
       }
       
       // Nuovo calcolo della frequenza usando solo la densità delle impressioni
