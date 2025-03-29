@@ -54,8 +54,9 @@ const ReachLab = () => {
       if (results.impressions !== '-') {
         const p = channelPotential;
         const g = parseFloat(results.grp);
-        if (!isNaN(g)) {
-          drawReachCurve(p, g);
+        const userReach = parseFloat(results.reachUsersPercentage);
+        if (!isNaN(g) && !isNaN(userReach)) {
+          drawReachCurve(p, g, userReach);
         }
       }
     };
@@ -127,7 +128,7 @@ const ReachLab = () => {
         // Target piccolo
         minFactor = 2.6;
         maxFactor = 5.0;
-        midDensity = 2.0;
+        midDensity = 1.5;
       } else if (targetSizeValue < 25000000) {
         // Target medio
         minFactor = 2.5;
@@ -190,7 +191,7 @@ const ReachLab = () => {
       
       // Disegna la curva di reach
       setTimeout(() => {
-        drawReachCurve(p, g);
+        drawReachCurve(p, g, finalReachOnUsers);
       }, 50);
     } catch (error) {
       console.error('Errore durante il calcolo:', error);
@@ -199,7 +200,7 @@ const ReachLab = () => {
   };
   
   // Funzione per disegnare la curva di reach
-  const drawReachCurve = (p, g) => {
+  const drawReachCurve = (p, g, userReach) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
@@ -238,8 +239,9 @@ const ReachLab = () => {
     }
     
     // Funzione di scala per Y (Reach %)
+    // Modifica: limitare il massimo della scala Y al potenziale del canale (p)
     function scaleY(value) {
-      return margin.top + chartHeight - (value / 100) * chartHeight;
+      return margin.top + chartHeight - (value / p) * chartHeight;
     }
     
     // Disegna gli assi
@@ -268,12 +270,14 @@ const ReachLab = () => {
     ctx.strokeStyle = '#e5e7eb';
     ctx.setLineDash([5, 5]);
     
-    // Linee orizzontali e tick Y
-    for (let i = 0; i <= 10; i++) {
-      const y = scaleY(i * 10);
+    // Linee orizzontali e tick Y - limitato al potenziale del canale
+    const yTickCount = 8; // 8 divisioni per una scala più precisa
+    for (let i = 0; i <= yTickCount; i++) {
+      const tickValue = (i / yTickCount) * p;
+      const y = scaleY(tickValue);
       ctx.moveTo(margin.left, y);
       ctx.lineTo(margin.left + chartWidth, y);
-      ctx.fillText(`${i * 10}%`, margin.left - 10, y + 5);
+      ctx.fillText(`${Math.round(tickValue)}%`, margin.left - 10, y + 5);
     }
     
     // Linee verticali e tick X
@@ -286,7 +290,7 @@ const ReachLab = () => {
     ctx.stroke();
     ctx.setLineDash([]);
     
-    // Disegna la curva di reach
+    // Disegna la curva di reach potenziale
     ctx.beginPath();
     ctx.strokeStyle = '#2563eb';
     ctx.lineWidth = 2;
@@ -307,10 +311,9 @@ const ReachLab = () => {
     
     ctx.stroke();
     
-    // Disegna il punto che rappresenta la posizione attuale
-    const currentReach = (p * g) / (g + p);
+    // Disegna il punto che rappresenta la posizione attuale usando il valore di Reach (% on Users)
     const currentX = scaleX(g);
-    const currentY = scaleY(currentReach);
+    const currentY = scaleY(userReach);
     
     ctx.beginPath();
     ctx.fillStyle = '#ef4444';
