@@ -54,8 +54,10 @@ const ReachLab = () => {
       if (results.impressions !== '-') {
         const p = channelPotential;
         const g = parseFloat(results.grp);
-        if (!isNaN(g)) {
-          drawReachCurve(p, g);
+        const standardReach = (p * g) / (g + p);
+        const userReach = parseFloat(results.reachUsersPercentage);
+        if (!isNaN(g) && !isNaN(standardReach) && !isNaN(userReach)) {
+          drawReachCurve(p, g, standardReach, userReach);
         }
       }
     };
@@ -127,7 +129,7 @@ const ReachLab = () => {
         // Target piccolo
         minFactor = 2.6;
         maxFactor = 5.0;
-        midDensity = 2.0;
+        midDensity = 1.5;
       } else if (targetSizeValue < 25000000) {
         // Target medio
         minFactor = 2.5;
@@ -190,7 +192,7 @@ const ReachLab = () => {
       
       // Disegna la curva di reach
       setTimeout(() => {
-        drawReachCurve(p, g);
+        drawReachCurve(p, g, standardReach1Plus, finalReachOnUsers);
       }, 50);
     } catch (error) {
       console.error('Errore durante il calcolo:', error);
@@ -199,7 +201,7 @@ const ReachLab = () => {
   };
   
   // Funzione per disegnare la curva di reach
-  const drawReachCurve = (p, g) => {
+  const drawReachCurve = (p, g, standardReach, userReach) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
@@ -232,14 +234,20 @@ const ReachLab = () => {
     // Calcola il massimo GRP da visualizzare (1.5 volte il GRP attuale o almeno 1000)
     const maxGrp = Math.max(1000, g * 1.5);
     
+    // Calcola il fattore di scala per l'asse Y in modo che alla posizione attuale mostri il valore di userReach
+    const yScaleFactor = userReach / standardReach;
+    
     // Funzione di scala per X (GRP)
     function scaleX(value) {
       return margin.left + (value / maxGrp) * chartWidth;
     }
     
     // Funzione di scala per Y (Reach %)
+    // Modifica: scala l'asse Y in modo che alla posizione attuale mostri il valore di userReach
     function scaleY(value) {
-      return margin.top + chartHeight - (value / 100) * chartHeight;
+      // Scala il valore in base al rapporto tra userReach e standardReach
+      const scaledValue = value * yScaleFactor;
+      return margin.top + chartHeight - (scaledValue / 100) * chartHeight;
     }
     
     // Disegna gli assi
@@ -268,12 +276,16 @@ const ReachLab = () => {
     ctx.strokeStyle = '#e5e7eb';
     ctx.setLineDash([5, 5]);
     
-    // Linee orizzontali e tick Y
-    for (let i = 0; i <= 10; i++) {
-      const y = scaleY(i * 10);
+    // Linee orizzontali e tick Y - scala adattata
+    const yTickCount = 10;
+    const maxTickValue = Math.min(100, Math.ceil(p * yScaleFactor / 10) * 10); // Arrotonda al decimo superiore, max 100%
+    
+    for (let i = 0; i <= yTickCount; i++) {
+      const tickValue = (i / yTickCount) * maxTickValue;
+      const y = margin.top + chartHeight - (tickValue / 100) * chartHeight;
       ctx.moveTo(margin.left, y);
       ctx.lineTo(margin.left + chartWidth, y);
-      ctx.fillText(`${i * 10}%`, margin.left - 10, y + 5);
+      ctx.fillText(`${Math.round(tickValue)}%`, margin.left - 10, y + 5);
     }
     
     // Linee verticali e tick X
@@ -286,7 +298,7 @@ const ReachLab = () => {
     ctx.stroke();
     ctx.setLineDash([]);
     
-    // Disegna la curva di reach
+    // Disegna la curva di reach potenziale
     ctx.beginPath();
     ctx.strokeStyle = '#2563eb';
     ctx.lineWidth = 2;
@@ -308,9 +320,8 @@ const ReachLab = () => {
     ctx.stroke();
     
     // Disegna il punto che rappresenta la posizione attuale
-    const currentReach = (p * g) / (g + p);
     const currentX = scaleX(g);
-    const currentY = scaleY(currentReach);
+    const currentY = scaleY(standardReach); // Usiamo standardReach qui perché scaleY lo convertirà in userReach
     
     ctx.beginPath();
     ctx.fillStyle = '#ef4444';
