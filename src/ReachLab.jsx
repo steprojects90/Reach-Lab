@@ -54,8 +54,9 @@ const ReachLab = () => {
       if (results.impressions !== '-') {
         const p = channelPotential;
         const g = parseFloat(results.grp);
-        if (!isNaN(g)) {
-          drawReachCurve(p, g);
+        const finalReach = parseFloat(results.reachPercentage);
+        if (!isNaN(g) && !isNaN(finalReach)) {
+          drawReachCurve(p, g, finalReach);
         }
       }
     };
@@ -127,7 +128,7 @@ const ReachLab = () => {
         // Target piccolo
         minFactor = 2.6;
         maxFactor = 5.0;
-        midDensity = 2.0;
+        midDensity = 1.5;
       } else if (targetSizeValue < 25000000) {
         // Target medio
         minFactor = 2.5;
@@ -190,7 +191,7 @@ const ReachLab = () => {
       
       // Disegna la curva di reach
       setTimeout(() => {
-        drawReachCurve(p, g);
+        drawReachCurve(p, g, finalReach1Plus);
       }, 50);
     } catch (error) {
       console.error('Errore durante il calcolo:', error);
@@ -199,7 +200,7 @@ const ReachLab = () => {
   };
   
   // Funzione per disegnare la curva di reach
-  const drawReachCurve = (p, g) => {
+  const drawReachCurve = (p, g, finalReach) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
@@ -286,7 +287,41 @@ const ReachLab = () => {
     ctx.stroke();
     ctx.setLineDash([]);
     
-    // Disegna la curva di reach
+    // Funzione che calcola la reach adattata per un dato GRP
+    const calculateAdaptedReach = (grpValue) => {
+      // Calcolo standard
+      const standardReach = (p * grpValue) / (grpValue + p);
+      const standardFreq = grpValue / standardReach;
+      
+      // Calcolo del fattore di frequenza
+      // Utilizziamo la stessa logica usata nel calcolo principale
+      const impressionDensity = targetSize ? parseFloat(targetSize.replace(/\./g, '')) / 1000 : 0;
+      
+      let minFactor, maxFactor, midDensity;
+      if (parseFloat(targetSize.replace(/\./g, '')) < 10000000) {
+        minFactor = 2.6;
+        maxFactor = 5.0;
+        midDensity = 1.5;
+      } else if (parseFloat(targetSize.replace(/\./g, '')) < 25000000) {
+        minFactor = 2.5;
+        maxFactor = 5.0;
+        midDensity = 3.0;
+      } else {
+        minFactor = 2.2;
+        maxFactor = 4.0;
+        midDensity = 4.0;
+      }
+      
+      const factor = minFactor + (maxFactor - minFactor) * (1 - Math.exp(-impressionDensity / midDensity));
+      
+      // Calcolo della frequenza adattata
+      const adaptedFreq = standardFreq * factor;
+      
+      // Calcolo della reach adattata
+      return grpValue / adaptedFreq;
+    };
+    
+    // Disegna la curva di reach adattata
     ctx.beginPath();
     ctx.strokeStyle = '#2563eb';
     ctx.lineWidth = 2;
@@ -296,7 +331,7 @@ const ReachLab = () => {
     
     for (let i = 0; i < numPoints; i++) {
       const grpValue = (i / (numPoints - 1)) * maxGrp;
-      const reachValue = (p * grpValue) / (grpValue + p);
+      const reachValue = calculateAdaptedReach(grpValue);
       points.push({ x: scaleX(grpValue), y: scaleY(reachValue) });
     }
     
@@ -307,10 +342,9 @@ const ReachLab = () => {
     
     ctx.stroke();
     
-    // Disegna il punto che rappresenta la posizione attuale
-    const currentReach = (p * g) / (g + p);
+    // Disegna il punto che rappresenta la posizione attuale sulla reach adattata
     const currentX = scaleX(g);
-    const currentY = scaleY(currentReach);
+    const currentY = scaleY(finalReach);
     
     ctx.beginPath();
     ctx.fillStyle = '#ef4444';
