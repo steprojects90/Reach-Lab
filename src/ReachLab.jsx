@@ -28,7 +28,7 @@ const ReachLab = () => {
   
   // Stati nascosti (non mostrati nell'UI ma usati nei calcoli)
   const [campaignDays] = useState(30);
-  const [channelPotential] = useState(50);
+  const [channelPotential] = useState(80);
   
   // Stati per i risultati
   const [results, setResults] = useState({
