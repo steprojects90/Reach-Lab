@@ -10,6 +10,10 @@ const formatPercentage = (num) => {
   return num.toFixed(2) + '%';
 };
 
+const formatNumberDecimal = (num) => {
+  return num.toFixed(2);
+};
+
 // Componente Card di base
 const Card = ({ children, className = '' }) => {
   return (
@@ -65,15 +69,26 @@ const ReachLab = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [results, channelPotential]);
   
-  // Funzione per gestire l'input formattato con separatori delle migliaia
-  const handleFormattedInput = (value, setter) => {
+  // Funzione per gestire l'input formattato con separatori delle migliaia e validazione
+  const handleFormattedInput = (value, setter, minValue = 0, fieldName = '') => {
     // Rimuovi tutti i caratteri non numerici
     const numericValue = value.replace(/\D/g, '');
     
     // Verifica che ci sia un valore
     if (numericValue) {
+      const parsedValue = parseInt(numericValue, 10);
+      
+      // Verifica il valore minimo
+      if (parsedValue < minValue) {
+        alert(`${fieldName} non può essere inferiore a ${minValue.toLocaleString('it-IT')}`);
+        // Imposta al valore minimo
+        const minValueFormatted = minValue.toLocaleString('it-IT');
+        setter(minValueFormatted);
+        return;
+      }
+      
       // Formatta il numero con i separatori delle migliaia
-      const formattedValue = parseInt(numericValue, 10).toLocaleString('it-IT');
+      const formattedValue = parsedValue.toLocaleString('it-IT');
       setter(formattedValue);
     } else {
       setter('');
@@ -91,10 +106,24 @@ const ReachLab = () => {
     try {
       // Ottieni i valori di input
       const targetSizeClean = targetSize.replace(/\./g, '');
-      const targetSizeValue = parseInt(targetSizeClean, 10) || 1000000;
+      const targetSizeValue = parseInt(targetSizeClean, 10) || 2000000;
+      
+      // Verifica la dimensione minima del target
+      if (targetSizeValue < 2000000) {
+        setTargetSize('2.000.000');
+        alert('Dimensione Target non può essere inferiore a 2.000.000');
+        return;
+      }
       
       const budgetClean = budget.replace(/\./g, '');
-      const budgetValue = parseInt(budgetClean, 10) || 50000;
+      const budgetValue = parseInt(budgetClean, 10) || 5000;
+      
+      // Verifica il budget minimo
+      if (budgetValue < 5000) {
+        setBudget('5.000');
+        alert('Budget non può essere inferiore a 5.000€');
+        return;
+      }
       
       const cpmClean = cpm.replace(',', '.');
       const cpmValue = parseFloat(cpmClean) || 25;
@@ -163,7 +192,7 @@ const ReachLab = () => {
       // Aggiorna lo stato dei risultati
       setResults({
         impressions: formatNumber(totalImpressions),
-        grp: formatPercentage(calculatedGrps),
+        grp: formatNumberDecimal(calculatedGrps), // Modificato: ora senza il simbolo %
         uniqueDevices: formatNumber(uniqueDevices),
         netContacts: formatNumber(netContacts),
         reachPercentage: formatPercentage(finalReach1Plus),
@@ -353,7 +382,7 @@ const ReachLab = () => {
               type="text"
               id="targetSize"
               value={targetSize}
-              onChange={(e) => handleFormattedInput(e.target.value, setTargetSize)}
+              onChange={(e) => handleFormattedInput(e.target.value, setTargetSize, 2000000, 'Dimensione Target')}
               className="form-input"
             />
           </div>
@@ -366,7 +395,7 @@ const ReachLab = () => {
               type="text"
               id="budget"
               value={budget}
-              onChange={(e) => handleFormattedInput(e.target.value, setBudget)}
+              onChange={(e) => handleFormattedInput(e.target.value, setBudget, 5000, 'Budget')}
               className="form-input"
             />
           </div>
