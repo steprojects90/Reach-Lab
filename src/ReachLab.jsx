@@ -34,11 +34,13 @@ const ReachLab = () => {
   const [results, setResults] = useState({
     impressions: '-',
     grp: '-',
-    reach: '-',
+    uniqueDevices: '-',               // Rinominato da reach
+    netContacts: '-',                 // Nuovo campo: contatti netti
     reachPercentage: '-',
     reachUsersPercentage: '-',
     frequency: '-',
-    costPerReach: '-',
+    costPerReachPointDevices: '-',    // Rinominato da costPerReach
+    costPerReachPointUsers: '-',      // Nuovo campo
     cpg: '-'
   });
   
@@ -157,24 +159,32 @@ const ReachLab = () => {
       // Reach su users con fattore moltiplicatore 1.40 (considerando il pubblico one-to-many)
       const finalReachOnUsers = Math.min(finalReach1Plus * 1.40, 100); // Massimo 100%
       
-      // Reach in valore assoluto
-      const finalAbsoluteReach = Math.floor((finalReach1Plus / 100) * targetSizeValue);
+      // Unique Devices (ex Reach Stimata)
+      const uniqueDevices = Math.floor((finalReach1Plus / 100) * targetSizeValue);
       
-      // Costo per reach point
-      const finalCostPerReach = budgetValue / finalReach1Plus;
+      // Contatti netti (nuova metrica: 1.4 * uniqueDevices)
+      const netContacts = Math.floor(uniqueDevices * 1.4);
       
-      // Calcolo del CPG (Costo per GRP) - invariato dal calcolo adattivo
+      // Costo per reach point/devices
+      const costPerReachPointDevices = budgetValue / finalReach1Plus;
+      
+      // Costo per reach point/users
+      const costPerReachPointUsers = budgetValue / finalReachOnUsers;
+      
+      // Calcolo del CPG (Costo per GRP)
       const costPerGrp = budgetValue / calculatedGrps;
       
       // Aggiorna lo stato dei risultati
       setResults({
         impressions: formatNumber(totalImpressions),
         grp: formatPercentage(calculatedGrps),
-        reach: formatNumber(finalAbsoluteReach),
+        uniqueDevices: formatNumber(uniqueDevices),
+        netContacts: formatNumber(netContacts),
         reachPercentage: formatPercentage(finalReach1Plus),
         reachUsersPercentage: formatPercentage(finalReachOnUsers),
         frequency: finalFrequency.toFixed(2),
-        costPerReach: `€${formatNumber(finalCostPerReach)}`,
+        costPerReachPointDevices: `€${formatNumber(costPerReachPointDevices)}`,
+        costPerReachPointUsers: `€${formatNumber(costPerReachPointUsers)}`,
         cpg: `€${formatNumber(costPerGrp)}`
       });
       
@@ -404,8 +414,13 @@ const ReachLab = () => {
           </div>
           
           <div className="result-box result-box-success">
-            <p className="result-label text-success">Reach Stimata</p>
-            <p className="result-value">{results.reach}</p>
+            <p className="result-label text-success">Unique Devices</p>
+            <p className="result-value">{results.uniqueDevices}</p>
+          </div>
+          
+          <div className="result-box result-box-success">
+            <p className="result-label text-success">Contatti Netti</p>
+            <p className="result-value">{results.netContacts}</p>
           </div>
           
           <div className="result-box result-box-success">
@@ -427,8 +442,13 @@ const ReachLab = () => {
           </div>
           
           <div className="result-box result-box-warning">
-            <p className="result-label text-warning">Costo per Reach Point</p>
-            <p className="result-value">{results.costPerReach}</p>
+            <p className="result-label text-warning">Costo per Reach Point/Devices</p>
+            <p className="result-value">{results.costPerReachPointDevices}</p>
+          </div>
+          
+          <div className="result-box result-box-warning">
+            <p className="result-label text-warning">Costo per Reach Point/Users</p>
+            <p className="result-value">{results.costPerReachPointUsers}</p>
           </div>
           
           <div className="result-box result-box-warning">
