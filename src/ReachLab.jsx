@@ -27,9 +27,9 @@ const Card = ({ children, className = '' }) => {
 // Componente principale
 const ReachLab = () => {
   // Stati per gli input
-  const [targetSize, setTargetSize] = useState('1.000.000');
-  const [budget, setBudget] = useState('50.000');
-  const [cpm, setCpm] = useState('25');
+  const [targetSize, setTargetSize] = useState('');
+  const [budget, setBudget] = useState('');
+  const [cpm, setCpm] = useState('');
   
   // Stati nascosti (non mostrati nell'UI ma usati nei calcoli)
   const [channelPotential] = useState(80);
@@ -175,12 +175,11 @@ const ReachLab = () => {
       // Nuovo calcolo della frequenza usando solo la densità delle impressioni
       const frequencyAdjustmentFactor = 1 + Math.log10(1 + impressionDensity / midDensity);
       
-      // Applica il fattore di aggiustamento alla frequenza standard
-      let finalFrequency = standardFrequency * frequencyAdjustmentFactor;
-      
-      // NUOVO: Applica il frequency cap se attivo
+      // Dichiara le variabili per finalFrequency e finalReach1Plus
+      let finalFrequency;
       let finalReach1Plus;
       
+      // NUOVO: Applica il frequency cap se attivo
       if (frequencyCap !== null) {
         // Se il frequency cap è attivo, forziamo la frequenza al valore impostato
         finalFrequency = frequencyCap;
@@ -188,6 +187,7 @@ const ReachLab = () => {
         finalReach1Plus = g / finalFrequency;
       } else {
         // Calcolo normale senza frequency cap
+        finalFrequency = standardFrequency * frequencyAdjustmentFactor;
         finalReach1Plus = g / finalFrequency;
       }
       
@@ -399,7 +399,7 @@ const ReachLab = () => {
           <div className="form-grid-centered" style={{ gap: '2rem' }}>
             <div className="form-group">
               <label htmlFor="targetSize" className="form-label">
-                Dimensione Target (persone)
+                Dimensione Target
               </label>
               <input
                 type="text"
@@ -436,19 +436,20 @@ const ReachLab = () => {
               />
             </div>
           </div>
-          
-          <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-            <button
-              onClick={calculateResults}
-              className="btn"
-            >
-              Calcola
-            </button>
-          </div>
         </Card>
         
         {/* Componente FreestyleMode */}
         <FreestyleMode onFrequencyCapChange={handleFrequencyCapChange} />
+      </div>
+      
+      {/* Bottone Calcola spostato sotto entrambi i componenti */}
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        <button
+          onClick={calculateResults}
+          className="btn"
+        >
+          Calcola
+        </button>
       </div>
       
       <Card>

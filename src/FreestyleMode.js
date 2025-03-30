@@ -1,18 +1,28 @@
 import React, { useState, useEffect } from 'react';
 
-const FreestyleMode = ({ onFrequencyCapChange, initialValue = 3.5 }) => {
+const FreestyleMode = ({ onFrequencyCapChange, initialValue = 1.0 }) => {
   const [sliderValue, setSliderValue] = useState(initialValue);
   const [inputValue, setInputValue] = useState(initialValue.toString());
   const [isEnabled, setIsEnabled] = useState(false);
+  const [isSliding, setIsSliding] = useState(false); // Nuovo stato per tracciare lo sliding
   
   // Handle slider change
   const handleSliderChange = (e) => {
     const newValue = parseFloat(e.target.value);
     setSliderValue(newValue);
     setInputValue(newValue.toFixed(1));
+    setIsSliding(true); // Attiva lo stato di sliding
     if (isEnabled) {
       onFrequencyCapChange(newValue);
     }
+  };
+  
+  // Aggiungi un handler per mouseup/touchend
+  const handleSliderEnd = () => {
+    // Nascondi il valore dopo un breve ritardo
+    setTimeout(() => {
+      setIsSliding(false);
+    }, 1000);
   };
   
   // Handle manual input change
@@ -72,24 +82,33 @@ const FreestyleMode = ({ onFrequencyCapChange, initialValue = 3.5 }) => {
     <div className="card freestyle-mode-card" style={{ flex: 1 }}>
       <h2 className="card-title">Freestyle Mode</h2>
       <div className="freestyle-container">
-        {/* Slider value bubble */}
-        <div id="frequency-cap-bubble" className="frequency-bubble">
+        {/* Slider value bubble - visibile solo durante lo sliding */}
+        <div 
+          id="frequency-cap-bubble" 
+          className="frequency-bubble"
+          style={{ visibility: isSliding ? 'visible' : 'hidden' }}
+        >
           {sliderValue.toFixed(1)}
         </div>
         
         {/* Arrow below bubble */}
-        <div className="frequency-bubble-arrow"></div>
+        <div 
+          className="frequency-bubble-arrow"
+          style={{ visibility: isSliding ? 'visible' : 'hidden' }}
+        ></div>
         
         {/* Slider container */}
         <div style={{ marginTop: '2rem', position: 'relative' }}>
           <input
             id="frequency-cap-slider"
             type="range"
-            min="1"
+            min="1.0"
             max="10"
             step="0.1"
             value={sliderValue}
             onChange={handleSliderChange}
+            onMouseUp={handleSliderEnd}
+            onTouchEnd={handleSliderEnd}
             style={{
               background: `linear-gradient(to right, #2563eb 0%, #2563eb ${
                 ((sliderValue - 1) * 100) / 9
