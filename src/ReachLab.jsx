@@ -394,8 +394,11 @@ const ReachLab = () => {
       {/* Layout orizzontale per Parametri Campagna e Freestyle Mode */}
       <div className="horizontal-layout">
         {/* Card Parametri Campagna */}
-        <Card className="campaign-params-card">
-          <h2 className="card-title text-center">Parametri Campagna</h2>
+      <Card className="campaign-params-card">
+        <h2 className="card-title text-center">Parametri Campagna</h2>
+        
+        {/* Aggiunta di padding orizzontale */}
+        <div style={{ padding: '0 1.5rem' }}>
           <div className="form-grid-centered" style={{ gap: '2rem' }}>
             <div className="form-group">
               <label htmlFor="targetSize" className="form-label">
@@ -436,7 +439,8 @@ const ReachLab = () => {
               />
             </div>
           </div>
-        </Card>
+        </div>
+      </Card>
         
         {/* Componente FreestyleMode */}
         <FreestyleMode onFrequencyCapChange={handleFrequencyCapChange} />
