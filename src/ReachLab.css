@@ -426,3 +426,25 @@ input:checked + .toggle-slider:before {
   border-radius: 0.25rem;
   text-align: center;
 }
+
+/* Layout orizzontale per i componenti */
+.horizontal-layout {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.campaign-params-card {
+  flex: 1; /* Prende la metà dello spazio disponibile */
+}
+
+.freestyle-mode-card {
+  flex: 1; /* Prende la metà dello spazio disponibile */
+}
+
+/* Adatta il layout su schermi più piccoli */
+@media (max-width: 1024px) {
+  .horizontal-layout {
+    flex-direction: column;
+  }
+}

@@ -391,61 +391,65 @@ const ReachLab = () => {
         <h1 className="reach-lab-title">Reach Lab - Advanced TV</h1>
       </div>
       
-      {/* Aggiungi il componente FreestyleMode sopra la card dei parametri della campagna */}
-      <FreestyleMode onFrequencyCapChange={handleFrequencyCapChange} />
-      
-      <Card>
-        <h2 className="card-title text-center">Parametri Campagna</h2>
-        <div className="form-grid-centered" style={{ gap: '2rem' }}>
-          <div className="form-group">
-            <label htmlFor="targetSize" className="form-label">
-              Dimensione Target (persone)
-            </label>
-            <input
-              type="text"
-              id="targetSize"
-              value={targetSize}
-              onChange={(e) => handleFormattedInput(e.target.value, setTargetSize, 2000000, 'Dimensione Target')}
-              className="form-input"
-            />
+      {/* Layout orizzontale per Parametri Campagna e Freestyle Mode */}
+      <div className="horizontal-layout">
+        {/* Card Parametri Campagna */}
+        <Card className="campaign-params-card">
+          <h2 className="card-title text-center">Parametri Campagna</h2>
+          <div className="form-grid-centered" style={{ gap: '2rem' }}>
+            <div className="form-group">
+              <label htmlFor="targetSize" className="form-label">
+                Dimensione Target (persone)
+              </label>
+              <input
+                type="text"
+                id="targetSize"
+                value={targetSize}
+                onChange={(e) => handleFormattedInput(e.target.value, setTargetSize, 2000000, 'Dimensione Target')}
+                className="form-input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="budget" className="form-label">
+                Budget (€)
+              </label>
+              <input
+                type="text"
+                id="budget"
+                value={budget}
+                onChange={(e) => handleFormattedInput(e.target.value, setBudget, 5000, 'Budget')}
+                className="form-input"
+              />
+            </div>
+            
+            <div className="form-group">
+              <label htmlFor="cpm" className="form-label">
+                CPM (€)
+              </label>
+              <input
+                type="text"
+                id="cpm"
+                value={cpm}
+                onChange={(e) => handleNumericInput(e.target.value, setCpm)}
+                className="form-input"
+              />
+            </div>
           </div>
           
-          <div className="form-group">
-            <label htmlFor="budget" className="form-label">
-              Budget (€)
-            </label>
-            <input
-              type="text"
-              id="budget"
-              value={budget}
-              onChange={(e) => handleFormattedInput(e.target.value, setBudget, 5000, 'Budget')}
-              className="form-input"
-            />
+          <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
+            <button
+              onClick={calculateResults}
+              className="btn"
+            >
+              Calcola
+            </button>
           </div>
-          
-          <div className="form-group">
-            <label htmlFor="cpm" className="form-label">
-              CPM (€)
-            </label>
-            <input
-              type="text"
-              id="cpm"
-              value={cpm}
-              onChange={(e) => handleNumericInput(e.target.value, setCpm)}
-              className="form-input"
-            />
-          </div>
-        </div>
+        </Card>
         
-        <div style={{ textAlign: 'center', marginTop: '1.5rem' }}>
-          <button
-            onClick={calculateResults}
-            className="btn"
-          >
-            Calcola
-          </button>
-        </div>
-      </Card>
+        {/* Componente FreestyleMode */}
+        <FreestyleMode onFrequencyCapChange={handleFrequencyCapChange} />
+      </div>
       
       <Card>
         <h2 className="card-title">Risultati Stimati</h2>

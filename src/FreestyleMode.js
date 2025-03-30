@@ -69,7 +69,7 @@ const FreestyleMode = ({ onFrequencyCapChange, initialValue = 3.5 }) => {
   }, [sliderValue]);
   
   return (
-    <div className="card">
+    <div className="card freestyle-mode-card" style={{ flex: 1 }}>
       <h2 className="card-title">Freestyle Mode</h2>
       <div className="freestyle-container">
         {/* Slider value bubble */}
