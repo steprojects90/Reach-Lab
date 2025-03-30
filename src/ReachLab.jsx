@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ReachLab.css';
+import FreestyleMode from './FreestyleMode'; // Import the new component
 
 // Utilità per la formattazione dei numeri
 const formatNumber = (num) => {
@@ -32,6 +33,9 @@ const ReachLab = () => {
   
   // Stati nascosti (non mostrati nell'UI ma usati nei calcoli)
   const [channelPotential] = useState(80);
+  
+  // Nuovo stato per il frequency cap
+  const [frequencyCap, setFrequencyCap] = useState(null);
   
   // Stati per i risultati
   const [results, setResults] = useState({
@@ -68,6 +72,15 @@ const ReachLab = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [results, channelPotential]);
+  
+  // Gestione del cambiamento del frequency cap
+  const handleFrequencyCapChange = (value) => {
+    setFrequencyCap(value);
+    // Se i risultati sono già calcolati, ricalcola con il nuovo frequency cap
+    if (results.impressions !== '-') {
+      calculateResults();
+    }
+  };
   
   // Funzione per gestire l'input formattato con separatori delle migliaia e validazione
   const handleFormattedInput = (value, setter, minValue = 0, fieldName = '') => {
@@ -141,7 +154,7 @@ const ReachLab = () => {
       const standardReach1Plus = (p * g) / (g + p);
       
       // Calcolo della frequenza media standard (GRP / reach)
-      const standardFrequency = g / standardReach1Plus;
+      let standardFrequency = g / standardReach1Plus;
       
       // Calcolo adattivo della frequenza basato sulla densità delle impressioni
       const impressionDensity = targetSizeValue > 0 ? totalImpressions / targetSizeValue : 0;
@@ -163,11 +176,20 @@ const ReachLab = () => {
       const frequencyAdjustmentFactor = 1 + Math.log10(1 + impressionDensity / midDensity);
       
       // Applica il fattore di aggiustamento alla frequenza standard
-      const finalFrequency = standardFrequency * frequencyAdjustmentFactor;
+      let finalFrequency = standardFrequency * frequencyAdjustmentFactor;
       
-      // Ricalcola la reach in base alla frequenza adattata
-      // Se f = g/r, allora r = g/f
-      const finalReach1Plus = g / finalFrequency;
+      // NUOVO: Applica il frequency cap se attivo
+      let finalReach1Plus;
+      
+      if (frequencyCap !== null) {
+        // Se il frequency cap è attivo, forziamo la frequenza al valore impostato
+        finalFrequency = frequencyCap;
+        // Ricalcoliamo la reach usando la formula inversa: reach = GRP / frequency
+        finalReach1Plus = g / finalFrequency;
+      } else {
+        // Calcolo normale senza frequency cap
+        finalReach1Plus = g / finalFrequency;
+      }
       
       // Reach su users con fattore moltiplicatore 1.40 (considerando il pubblico one-to-many)
       const finalReachOnUsers = Math.min(finalReach1Plus * 1.40, 100); // Massimo 100%
@@ -368,6 +390,9 @@ const ReachLab = () => {
       <div className="reach-lab-title">
         <h1 className="reach-lab-title">Reach Lab - Advanced TV</h1>
       </div>
+      
+      {/* Aggiungi il componente FreestyleMode sopra la card dei parametri della campagna */}
+      <FreestyleMode onFrequencyCapChange={handleFrequencyCapChange} />
       
       <Card>
         <h2 className="card-title text-center">Parametri Campagna</h2>
