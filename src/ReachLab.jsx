@@ -157,8 +157,11 @@ const ReachLab = () => {
       // Formula della reach 1+ (percentuale del target) - Reach su devices
       const standardReach1Plus = (p * g) / (g + p);
       
-      // Calcolo della frequenza media standard (GRP / reach)
-      let standardFrequency = g / standardReach1Plus;
+      // Unique Devices (usando la percentuale di reach)
+      const uniqueDevices = Math.floor((standardReach1Plus / 100) * targetSizeValue);
+      
+      // Calcolo della frequenza media come impressions / unique devices
+      let standardFrequency = totalImpressions / uniqueDevices;
       
       // Calcolo adattivo della frequenza basato sulla densità delle impressioni
       const impressionDensity = targetSizeValue > 0 ? totalImpressions / targetSizeValue : 0;
@@ -182,27 +185,28 @@ const ReachLab = () => {
       // Dichiara le variabili per finalFrequency e finalReach1Plus
       let finalFrequency;
       let finalReach1Plus;
+      let finalUniqueDevices;
       
       // NUOVO: Applica il frequency cap se attivo
       if (frequencyCap !== null) {
         // Se il frequency cap è attivo, forziamo la frequenza al valore impostato
         finalFrequency = frequencyCap;
-        // Ricalcoliamo la reach usando la formula inversa: reach = GRP / frequency
-        finalReach1Plus = g / finalFrequency;
+        // Se impostiamo la frequenza, calcoliamo gli unique devices come impressions / frequenza
+        finalUniqueDevices = Math.floor(totalImpressions / finalFrequency);
+        // Quindi ricalcoliamo la reach come percentuale
+        finalReach1Plus = (finalUniqueDevices / targetSizeValue) * 100;
       } else {
         // Calcolo normale senza frequency cap
         finalFrequency = standardFrequency * frequencyAdjustmentFactor;
-        finalReach1Plus = g / finalFrequency;
+        finalReach1Plus = standardReach1Plus;
+        finalUniqueDevices = uniqueDevices;
       }
       
       // Reach su users con fattore moltiplicatore 1.40 (considerando il pubblico one-to-many)
       const finalReachOnUsers = Math.min(finalReach1Plus * 1.40, 100); // Massimo 100%
       
-      // Unique Devices (usando la percentuale di reach)
-      const uniqueDevices = Math.floor((finalReach1Plus / 100) * targetSizeValue);
-      
       // Contatti netti (nuova metrica: 1.4 * uniqueDevices)
-      const netContacts = Math.floor(uniqueDevices * 1.4);
+      const netContacts = Math.floor(finalUniqueDevices * 1.4);
       
       // Costo per GRP
       const costPerGrp = budgetValue / calculatedGrps;
@@ -218,7 +222,7 @@ const ReachLab = () => {
         impressions: formatNumber(totalImpressions),
         grossImpressions: formatNumber(totalGrossImpressions),
         grp: formatNumberDecimal(calculatedGrps),
-        uniqueDevices: formatNumber(uniqueDevices),
+        uniqueDevices: formatNumber(finalUniqueDevices),
         netContacts: formatNumber(netContacts),
         reachPercentage: formatPercentage(finalReach1Plus),
         reachUsersPercentage: formatPercentage(finalReachOnUsers),
