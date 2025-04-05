@@ -40,6 +40,7 @@ const ReachLab = () => {
   // Stati per i risultati
   const [results, setResults] = useState({
     impressions: '-',
+    grossImpressions: '-',
     grp: '-',
     uniqueDevices: '-',
     netContacts: '-',
@@ -142,8 +143,11 @@ const ReachLab = () => {
       // Calcolo delle impressioni totali
       const totalImpressions = Math.floor(budgetValue / (cpmValue / 1000));
       
-      // Calcolo dei GRP
-      const calculatedGrps = (totalImpressions / targetSizeValue) * 100;
+      // Calcolo dei contatti lordi (impressioni × 1.4)
+      const totalGrossImpressions = Math.floor(totalImpressions * 1.4);
+      
+      // Calcolo dei GRP usando i contatti lordi
+      const calculatedGrps = (totalGrossImpressions / targetSizeValue) * 100;
       
       // Parametri per il calcolo della reach
       const p = channelPotential;
@@ -212,7 +216,8 @@ const ReachLab = () => {
       // Aggiorna lo stato dei risultati
       setResults({
         impressions: formatNumber(totalImpressions),
-        grp: formatNumberDecimal(calculatedGrps), // Modificato: ora senza il simbolo %
+        grossImpressions: formatNumber(totalGrossImpressions),
+        grp: formatNumberDecimal(calculatedGrps),
         uniqueDevices: formatNumber(uniqueDevices),
         netContacts: formatNumber(netContacts),
         reachPercentage: formatPercentage(finalReach1Plus),
@@ -394,53 +399,53 @@ const ReachLab = () => {
       {/* Layout orizzontale per Parametri Campagna e Freestyle Mode */}
       <div className="horizontal-layout">
         {/* Card Parametri Campagna */}
-      <Card className="campaign-params-card">
-        <h2 className="card-title text-center">Parametri Campagna</h2>
-        
-        {/* Aggiunta di padding orizzontale */}
-        <div style={{ padding: '0 1.5rem' }}>
-          <div className="form-grid-centered" style={{ gap: '2rem' }}>
-            <div className="form-group">
-              <label htmlFor="targetSize" className="form-label">
-                Dimensione Target
-              </label>
-              <input
-                type="text"
-                id="targetSize"
-                value={targetSize}
-                onChange={(e) => handleFormattedInput(e.target.value, setTargetSize, 2000000, 'Dimensione Target')}
-                className="form-input"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="budget" className="form-label">
-                Budget (€)
-              </label>
-              <input
-                type="text"
-                id="budget"
-                value={budget}
-                onChange={(e) => handleFormattedInput(e.target.value, setBudget, 5000, 'Budget')}
-                className="form-input"
-              />
-            </div>
-            
-            <div className="form-group">
-              <label htmlFor="cpm" className="form-label">
-                CPM (€)
-              </label>
-              <input
-                type="text"
-                id="cpm"
-                value={cpm}
-                onChange={(e) => handleNumericInput(e.target.value, setCpm)}
-                className="form-input"
-              />
+        <Card className="campaign-params-card">
+          <h2 className="card-title text-center">Parametri Campagna</h2>
+          
+          {/* Aggiunta di padding orizzontale */}
+          <div style={{ padding: '0 1.5rem' }}>
+            <div className="form-grid-centered" style={{ gap: '2rem' }}>
+              <div className="form-group">
+                <label htmlFor="targetSize" className="form-label">
+                  Dimensione Target
+                </label>
+                <input
+                  type="text"
+                  id="targetSize"
+                  value={targetSize}
+                  onChange={(e) => handleFormattedInput(e.target.value, setTargetSize, 2000000, 'Dimensione Target')}
+                  className="form-input"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="budget" className="form-label">
+                  Budget (€)
+                </label>
+                <input
+                  type="text"
+                  id="budget"
+                  value={budget}
+                  onChange={(e) => handleFormattedInput(e.target.value, setBudget, 5000, 'Budget')}
+                  className="form-input"
+                />
+              </div>
+              
+              <div className="form-group">
+                <label htmlFor="cpm" className="form-label">
+                  CPM (€)
+                </label>
+                <input
+                  type="text"
+                  id="cpm"
+                  value={cpm}
+                  onChange={(e) => handleNumericInput(e.target.value, setCpm)}
+                  className="form-input"
+                />
+              </div>
             </div>
           </div>
-        </div>
-      </Card>
+        </Card>
         
         {/* Componente FreestyleMode */}
         <FreestyleMode onFrequencyCapChange={handleFrequencyCapChange} />
@@ -462,6 +467,11 @@ const ReachLab = () => {
           <div className="result-box result-box-primary">
             <p className="result-label text-primary">Impressioni Totali</p>
             <p className="result-value">{results.impressions}</p>
+          </div>
+          
+          <div className="result-box result-box-primary">
+            <p className="result-label text-primary">Contatti Lordi</p>
+            <p className="result-value">{results.grossImpressions}</p>
           </div>
           
           <div className="result-box result-box-primary">
