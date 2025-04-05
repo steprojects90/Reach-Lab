@@ -198,7 +198,7 @@ const ReachLab = () => {
       // Reach su users con fattore moltiplicatore 1.40 (considerando il pubblico one-to-many)
       const finalReachOnUsers = Math.min(finalReach1Plus * 1.40, 100); // Massimo 100%
       
-      // Unique Devices (ex Reach Stimata)
+      // Unique Devices (usando la percentuale di reach)
       const uniqueDevices = Math.floor((finalReach1Plus / 100) * targetSizeValue);
       
       // Contatti netti (nuova metrica: 1.4 * uniqueDevices)
