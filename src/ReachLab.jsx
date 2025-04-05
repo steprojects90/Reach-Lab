@@ -40,7 +40,6 @@ const ReachLab = () => {
   // Stati per i risultati
   const [results, setResults] = useState({
     impressions: '-',
-    grossImpressions: '-',
     grp: '-',
     uniqueDevices: '-',
     netContacts: '-',
@@ -143,11 +142,8 @@ const ReachLab = () => {
       // Calcolo delle impressioni totali
       const totalImpressions = Math.floor(budgetValue / (cpmValue / 1000));
       
-      // Calcolo dei contatti lordi (impressioni × 1.4)
-      const totalGrossImpressions = Math.floor(totalImpressions * 1.4);
-      
-      // Calcolo dei GRP usando i contatti lordi
-      const calculatedGrps = (totalGrossImpressions / targetSizeValue) * 100;
+      // Calcolo dei GRP
+      const calculatedGrps = (totalImpressions / targetSizeValue) * 100;
       
       // Parametri per il calcolo della reach
       const p = channelPotential;
@@ -157,11 +153,8 @@ const ReachLab = () => {
       // Formula della reach 1+ (percentuale del target) - Reach su devices
       const standardReach1Plus = (p * g) / (g + p);
       
-      // Unique Devices (usando la percentuale di reach)
-      const uniqueDevices = Math.floor((standardReach1Plus / 100) * targetSizeValue);
-      
-      // Calcolo della frequenza media come impressions / unique devices
-      let standardFrequency = totalImpressions / uniqueDevices;
+      // Calcolo della frequenza media standard (GRP / reach)
+      let standardFrequency = g / standardReach1Plus;
       
       // Calcolo adattivo della frequenza basato sulla densità delle impressioni
       const impressionDensity = targetSizeValue > 0 ? totalImpressions / targetSizeValue : 0;
@@ -185,28 +178,27 @@ const ReachLab = () => {
       // Dichiara le variabili per finalFrequency e finalReach1Plus
       let finalFrequency;
       let finalReach1Plus;
-      let finalUniqueDevices;
       
       // NUOVO: Applica il frequency cap se attivo
       if (frequencyCap !== null) {
         // Se il frequency cap è attivo, forziamo la frequenza al valore impostato
         finalFrequency = frequencyCap;
-        // Se impostiamo la frequenza, calcoliamo gli unique devices come impressions / frequenza
-        finalUniqueDevices = Math.floor(totalImpressions / finalFrequency);
-        // Quindi ricalcoliamo la reach come percentuale
-        finalReach1Plus = (finalUniqueDevices / targetSizeValue) * 100;
+        // Ricalcoliamo la reach usando la formula inversa: reach = GRP / frequency
+        finalReach1Plus = g / finalFrequency;
       } else {
         // Calcolo normale senza frequency cap
         finalFrequency = standardFrequency * frequencyAdjustmentFactor;
-        finalReach1Plus = standardReach1Plus;
-        finalUniqueDevices = uniqueDevices;
+        finalReach1Plus = g / finalFrequency;
       }
       
       // Reach su users con fattore moltiplicatore 1.40 (considerando il pubblico one-to-many)
       const finalReachOnUsers = Math.min(finalReach1Plus * 1.40, 100); // Massimo 100%
       
+      // Unique Devices (ex Reach Stimata)
+      const uniqueDevices = Math.floor((finalReach1Plus / 100) * targetSizeValue);
+      
       // Contatti netti (nuova metrica: 1.4 * uniqueDevices)
-      const netContacts = Math.floor(finalUniqueDevices * 1.4);
+      const netContacts = Math.floor(uniqueDevices * 1.4);
       
       // Costo per GRP
       const costPerGrp = budgetValue / calculatedGrps;
@@ -220,9 +212,8 @@ const ReachLab = () => {
       // Aggiorna lo stato dei risultati
       setResults({
         impressions: formatNumber(totalImpressions),
-        grossImpressions: formatNumber(totalGrossImpressions),
         grp: formatNumberDecimal(calculatedGrps),
-        uniqueDevices: formatNumber(finalUniqueDevices),
+        uniqueDevices: formatNumber(uniqueDevices),
         netContacts: formatNumber(netContacts),
         reachPercentage: formatPercentage(finalReach1Plus),
         reachUsersPercentage: formatPercentage(finalReachOnUsers),
@@ -471,11 +462,6 @@ const ReachLab = () => {
           <div className="result-box result-box-primary">
             <p className="result-label text-primary">Impressioni Totali</p>
             <p className="result-value">{results.impressions}</p>
-          </div>
-          
-          <div className="result-box result-box-primary">
-            <p className="result-label text-primary">Contatti Lordi</p>
-            <p className="result-value">{results.grossImpressions}</p>
           </div>
           
           <div className="result-box result-box-primary">
