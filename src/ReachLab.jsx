@@ -46,9 +46,7 @@ const ReachLab = () => {
     reachPercentage: '-',
     reachUsersPercentage: '-',
     frequency: '-',
-    cpg: '-',
-    costPerReachPointDevices: '-',
-    costPerReachPointUsers: '-'
+    cpg: '-'
   });
   
   // Riferimento per il canvas
@@ -203,12 +201,6 @@ const ReachLab = () => {
       // Costo per GRP
       const costPerGrp = budgetValue / calculatedGrps;
       
-      // Costo per reach point/devices
-      const costPerReachPointDevices = budgetValue / finalReach1Plus;
-      
-      // Costo per reach point/users
-      const costPerReachPointUsers = budgetValue / finalReachOnUsers;
-      
       // Aggiorna lo stato dei risultati
       setResults({
         impressions: formatNumber(totalImpressions),
@@ -218,9 +210,7 @@ const ReachLab = () => {
         reachPercentage: formatPercentage(finalReach1Plus),
         reachUsersPercentage: formatPercentage(finalReachOnUsers),
         frequency: finalFrequency.toFixed(2),
-        cpg: `€${formatNumber(costPerGrp)}`,
-        costPerReachPointDevices: `€${formatNumber(costPerReachPointDevices)}`,
-        costPerReachPointUsers: `€${formatNumber(costPerReachPointUsers)}`
+        cpg: `€${formatNumber(costPerGrp)}`
       });
       
       // Disegna la curva di reach
@@ -508,21 +498,6 @@ const ReachLab = () => {
             <p className="result-label text-warning">Costo per GRP</p>
             <p className="result-value">{results.cpg}</p>
           </div>
-          
-          {/* Riga per i costi per reach point con container invisibili ai lati */}
-          <div className="result-box invisible-box hide-on-small"></div>
-          
-          <div className="result-box result-box-warning">
-            <p className="result-label text-warning">Costo per Reach Point/Devices</p>
-            <p className="result-value">{results.costPerReachPointDevices}</p>
-          </div>
-          
-          <div className="result-box result-box-warning">
-            <p className="result-label text-warning">Costo per Reach Point/Users</p>
-            <p className="result-value">{results.costPerReachPointUsers}</p>
-          </div>
-          
-          <div className="result-box invisible-box hide-on-small"></div>
         </div>
       </Card>
       
