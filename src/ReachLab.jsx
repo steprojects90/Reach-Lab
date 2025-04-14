@@ -162,7 +162,7 @@ const ReachLab = () => {
       if (targetSizeValue < 12000000) {
         // Target piccolo
         midDensity = 0.00337;
-      } else if (targetSizeValue < 20000000) {
+      } else if (targetSizeValue < 24000000) {
         // Target medio
         midDensity = 0.00229;
       } else {
