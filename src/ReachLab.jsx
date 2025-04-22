@@ -258,7 +258,7 @@ const ReachLab = () => {
         ['', '', ''],
         ['Risultati Stimati', '', ''],
         ['Impressions totali', results.rawData.impressions.toLocaleString('it-IT'), ''],
-        ['Frequenza Media', results.rawData.frequency.toString().replace('.', ','), ''],
+        ['Frequenza Media', results.rawData.frequency.toFixed(2).toString().replace('.', ','), ''],
         ['Unique Device', results.rawData.uniqueDevices.toLocaleString('it-IT'), ''],
         ['Contatti Netti', results.rawData.netContacts.toLocaleString('it-IT'), ''],
         ['Reach (% on Devices)', results.rawData.reachPercentage.toFixed(2).toString().replace('.', ',') + '%', ''],
