@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './ReachLab.css';
-import FreestyleMode from './FreestyleMode'; // Import the new component
+import FreestyleMode from './FreestyleMode';
+import * as XLSX from 'xlsx';
 
 // Utilità per la formattazione dei numeri
 const formatNumber = (num) => {
@@ -159,10 +160,10 @@ const ReachLab = () => {
       
       // Determina midDensity in base alla dimensione del target
       let midDensity;
-      if (targetSizeValue < 12000000) {
+      if (targetSizeValue < 10000000) {
         // Target piccolo
         midDensity = 0.00337;
-      } else if (targetSizeValue < 24000000) {
+      } else if (targetSizeValue < 25000000) {
         // Target medio
         midDensity = 0.00229;
       } else {
@@ -210,7 +211,21 @@ const ReachLab = () => {
         reachPercentage: formatPercentage(finalReach1Plus),
         reachUsersPercentage: formatPercentage(finalReachOnUsers),
         frequency: finalFrequency.toFixed(2),
-        cpg: `€${formatNumber(costPerGrp)}`
+        cpg: `€${formatNumber(costPerGrp)}`,
+        // Salva anche i valori numerici non formattati per l'esportazione
+        rawData: {
+          targetSize: targetSizeValue,
+          budget: budgetValue,
+          cpm: cpmValue,
+          impressions: totalImpressions,
+          grp: calculatedGrps,
+          uniqueDevices: uniqueDevices,
+          netContacts: netContacts,
+          reachPercentage: finalReach1Plus,
+          reachUsersPercentage: finalReachOnUsers,
+          frequency: finalFrequency,
+          cpg: costPerGrp
+        }
       });
       
       // Disegna la curva di reach
@@ -220,6 +235,50 @@ const ReachLab = () => {
     } catch (error) {
       console.error('Errore durante il calcolo:', error);
       alert('Si è verificato un errore durante il calcolo. Controlla i valori inseriti.');
+    }
+  };
+  
+  // Funzione per esportare i dati in Excel
+  const exportToExcel = () => {
+    if (results.impressions === '-') {
+      alert('Calcola prima i risultati per poterli esportare');
+      return;
+    }
+
+    try {
+      // Crea un nuovo workbook
+      const wb = XLSX.utils.book_new();
+      
+      // Prepara i dati per l'export
+      const data = [
+        ['Parametri di campagna', '', ''],
+        ['Dimensione Target', results.rawData.targetSize.toLocaleString('it-IT'), ''],
+        ['Budget', `${results.rawData.budget.toLocaleString('it-IT')} €`, ''],
+        ['CPM', `${results.rawData.cpm} €`, ''],
+        ['', '', ''],
+        ['Risultati Stimati', '', ''],
+        ['Impressions totali', results.rawData.impressions.toLocaleString('it-IT'), ''],
+        ['Frequenza Media', results.rawData.frequency.toString().replace('.', ','), ''],
+        ['Unique Device', results.rawData.uniqueDevices.toLocaleString('it-IT'), ''],
+        ['Contatti Netti', results.rawData.netContacts.toLocaleString('it-IT'), ''],
+        ['Reach (% on Devices)', results.rawData.reachPercentage.toFixed(2).toString().replace('.', ',') + '%', ''],
+        ['Reach (% on Users)', results.rawData.reachUsersPercentage.toFixed(2).toString().replace('.', ',') + '%', ''],
+        ['', '', ''],
+        ['GRP', results.rawData.grp.toFixed(2).toString().replace('.', ','), ''],
+        ['Costo per GRP', `${results.rawData.cpg.toLocaleString('it-IT')} €`, '']
+      ];
+      
+      // Crea un worksheet
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      
+      // Aggiungi il worksheet al workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Reach Lab Report');
+      
+      // Genera il file Excel e scaricalo
+      XLSX.writeFile(wb, 'Reach_Lab_Report.xlsx');
+    } catch (error) {
+      console.error('Errore durante l\'esportazione:', error);
+      alert('Si è verificato un errore durante l\'esportazione. Riprova o contatta il supporto.');
     }
   };
   
@@ -500,6 +559,20 @@ const ReachLab = () => {
           </div>
         </div>
       </Card>
+      
+      {/* Bottone Export */}
+      <div style={{ textAlign: 'center', marginBottom: '20px', marginTop: '20px' }}>
+        <button
+          onClick={exportToExcel}
+          className="btn"
+          style={{ 
+            backgroundColor: '#059669', 
+            padding: '10px 20px' 
+          }}
+        >
+          Export
+        </button>
+      </div>
       
       <Card>
         <h2 className="card-title">Curva di Reach</h2>
