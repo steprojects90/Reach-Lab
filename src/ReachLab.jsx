@@ -509,7 +509,7 @@ const ReachLab = () => {
         <h2 className="card-title">Risultati Stimati</h2>
         <div className="results-grid">
           <div className="result-box result-box-primary">
-            <p className="result-label text-primary">Impressioni Totali</p>
+            <p className="result-label text-primary">Impressions Totali</p>
             <p className="result-value">{results.impressions}</p>
           </div>
           
