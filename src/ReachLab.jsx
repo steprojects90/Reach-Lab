@@ -444,14 +444,14 @@ const ReachLab = () => {
       <div className="horizontal-layout">
         {/* Card Parametri Campagna */}
         <Card className="campaign-params-card">
-          <h2 className="card-title text-center">Parametri Campagna</h2>
+          <h2 className="card-title text-center">Campaign Parameters</h2>
           
           {/* Aggiunta di padding orizzontale */}
           <div style={{ padding: '0 1.5rem' }}>
             <div className="form-grid-centered" style={{ gap: '2rem' }}>
               <div className="form-group">
                 <label htmlFor="targetSize" className="form-label">
-                  Dimensione Target
+                  Target Size
                 </label>
                 <input
                   type="text"
@@ -501,20 +501,20 @@ const ReachLab = () => {
           onClick={calculateResults}
           className="btn"
         >
-          Calcola
+          Get Results
         </button>
       </div>
       
       <Card>
-        <h2 className="card-title">Risultati Stimati</h2>
+        <h2 className="card-title">Estimated Results</h2>
         <div className="results-grid">
           <div className="result-box result-box-primary">
-            <p className="result-label text-primary">Impressions Totali</p>
+            <p className="result-label text-primary">Total Impressions</p>
             <p className="result-value">{results.impressions}</p>
           </div>
           
           <div className="result-box result-box-primary">
-            <p className="result-label text-primary">GRP</p>
+            <p className="result-label text-primary">GRPs</p>
             <p className="result-value">{results.grp}</p>
           </div>
           
@@ -524,7 +524,7 @@ const ReachLab = () => {
           </div>
           
           <div className="result-box result-box-success">
-            <p className="result-label text-success">Contatti Netti</p>
+            <p className="result-label text-success">Net Reach</p>
             <p className="result-value">{results.netContacts}</p>
           </div>
           
@@ -540,7 +540,7 @@ const ReachLab = () => {
           
           <div className="result-box result-box-warning">
             <p className="result-label text-warning">
-              Frequenza Media
+              Average Frequency
               {frequencyCap !== null && (
                 <span 
                   className="tooltip" 
@@ -554,7 +554,7 @@ const ReachLab = () => {
           </div>
           
           <div className="result-box result-box-warning">
-            <p className="result-label text-warning">Costo per GRP</p>
+            <p className="result-label text-warning">Cost per GRP</p>
             <p className="result-value">{results.cpg}</p>
           </div>
         </div>
@@ -575,7 +575,7 @@ const ReachLab = () => {
       </div>
       
       <Card>
-        <h2 className="card-title">Curva di Reach</h2>
+        <h2 className="card-title">Reach Curve</h2>
         <div ref={containerRef} className="canvas-container">
           <canvas ref={canvasRef}></canvas>
         </div>
